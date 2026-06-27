@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent Mate | Secure Access</title>
+  <style>
+    /* -------------------------------------------------------------
+       1. BRAND IDENTITY & THEME VARIABLES
+    ------------------------------------------------------------- */
+    :root {
+      --bg-base: #090909;
+      --bg-surface: rgba(18, 18, 18, 0.85);
+      
+      --primary-orange: #FF8C42;
+      --secondary-gold: #FFD166;
+      --text-main: #FFFFFF;
+      --text-muted: #A0A0A0;
+      
+      --border-glass: rgba(255, 140, 66, 0.2);
+      --border-accent: rgba(255, 209, 102, 0.3);
+      --glass-blur: blur(20px);
+      --glass-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.7);
+      --glow-gold: 0 0 30px rgba(255, 209, 102, 0.3);
+    }
+
+    /* -------------------------------------------------------------
+       2. RESET & BASE LAYOUT
+    ------------------------------------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      
+      /* Locks screen to exactly 100% height and width */
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden; 
+      position: relative;
+    }
+
+    /* -------------------------------------------------------------
+       3. FRONT MEDIA CONTAINER (HTML VIDEO/GIF ELEMENT)
+    ------------------------------------------------------------- */
+    .media-container {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      position: relative;
+      z-index: 1; 
+    }
+
+    .front-video {
+      width: 100%;
+      height: 100%;
+      /* object-fit: fill forces the media to stretch exactly 100% x 100% */
+      object-fit: fill; 
+      display: block;
+    }
+
+    /* -------------------------------------------------------------
+       4. TOP NAVIGATION BAR
+    ------------------------------------------------------------- */
+    .top-bar {
+      position: absolute; 
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(9, 9, 9, 0.5); 
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-bottom: 1px solid var(--border-glass);
+      z-index: 100;
+    }
+
+    .brand-logo img {
+      height: 50px;
+      border-radius: 8px;
+      border: 1px solid var(--border-glass);
+    }
+
+    /* Golden Hover Buttons in Top Bar */
+    .nav-buttons {
+      display: flex;
+      gap: 16px;
+    }
+
+    .btn-gold {
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #FFD166, #F5B041);
+      border: none;
+      border-radius: 12px;
+      color: #090909;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 209, 102, 0.2);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-gold:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--glow-gold);
+      background: linear-gradient(135deg, #FFE082, #FFC107);
+    }
+
+    /* -------------------------------------------------------------
+       5. FORM OVERLAY (OPENS ON CLICK)
+    ------------------------------------------------------------- */
+    .form-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      
+      /* Hidden by default */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .form-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .form-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
+      border-radius: 24px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: var(--glass-shadow), var(--glow-gold);
+      position: relative;
+      
+      /* Animation */
+      transform: translateY(30px) scale(0.95);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .form-overlay.active .form-box {
+      transform: translateY(0) scale(1);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 32px;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.3s ease;
+    }
+
+    .close-btn:hover { color: #FF5A5A; }
+
+    .form-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(128, 128, 128, 0.1);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--secondary-gold);
+      background: rgba(255, 209, 102, 0.1);
+    }
+
+    .form-group select option {
+      background: #121212;
+      color: var(--text-main);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .full-width { grid-column: 1 / -1; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      margin-top: 12px;
+      background: linear-gradient(135deg, var(--secondary-gold), #F5B041);
+      border: none;
+      border-radius: 12px;
+      color: #090909;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 209, 102, 0.4);
+    }
+
+    /* Responsive adjustments for phones */
+    @media (max-width: 600px) {
+      .top-bar { padding: 0 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .brand-logo img { height: 40px; }
+      .btn-gold { padding: 10px 16px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVIGATION BAR -->
+  <div class="top-bar">
+    <div class="brand-logo">
+      <img src="FullLogo.jpg" alt="Rent Mate Logo">
+    </div>
+    <div class="nav-buttons">
+      <button class="btn-gold" onclick="openFormBox('signin')">Sign In</button>
+      <button class="btn-gold" onclick="openFormBox('signup')">Sign Up</button>
+    </div>
+  </div>
+
+  <!-- FRONT MEDIA ELEMENT (Actual HTML Tag, Not Background) -->
+  <div class="media-container">
+    <img src="video_full.gif" alt="Rent Mate Promo" class="front-video">
+  </div>
+
+  <!-- POPUP FORM BOX OVERLAY -->
+  <div class="form-overlay" id="formOverlay">
+    <div class="form-box">
+      
+      <!-- Close Button (X) -->
+      <button class="close-btn" onclick="closeFormBox()">&times;</button>
+
+      <h3 class="form-title" id="formTitle">Welcome Back</h3>
+      <p class="form-subtitle" id="formSubtitle">Enter your details to proceed.</p>
+
+      <!-- Form Submission Handled by JavaScript -->
+      <form id="authForm">
+        
+        <!-- Registration Fields (Hidden for Sign In) -->
+        <div id="signupFields" style="display: none;">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="regName" placeholder="Marcus Vance">
+            </div>
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" id="regCity" placeholder="New York">
+            </div>
+            <div class="form-group full-width">
+              <label>Account Role</label>
+              <select id="regRole">
+                <option value="user">Standard User (Renter)</option>
+                <option value="owner">Partner (Asset Owner)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Universal Fields -->
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="hello@rentmate.com" required>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">Access Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // UI Elements
+    const formOverlay = document.getElementById('formOverlay');
+    const signupFields = document.getElementById('signupFields');
+    const formTitle = document.getElementById('formTitle');
+    const formSubtitle = document.getElementById('formSubtitle');
+    const submitBtn = document.getElementById('submitBtn');
+    const authForm = document.getElementById('authForm');
+    
+    // Required fields for validation
+    const regName = document.getElementById('regName');
+    const regCity = document.getElementById('regCity');
+
+    // Global variable to track the current mode (signin or signup)
+    let currentMode = 'signin';
+
+    // Open Form Box
+    function openFormBox(mode) {
+      currentMode = mode;
+      formOverlay.classList.add('active');
+
+      if (mode === 'signin') {
+        signupFields.style.display = 'none';
+        formTitle.innerText = 'Sign In';
+        formSubtitle.innerText = 'Log in to manage your rentals.';
+        submitBtn.innerText = 'Access Account';
+        
+        regName.removeAttribute('required');
+        regCity.removeAttribute('required');
+      } else {
+        signupFields.style.display = 'block';
+        formTitle.innerText = 'Create Account';
+        formSubtitle.innerText = 'Join Rent Mate today.';
+        submitBtn.innerText = 'Sign Up Now';
+
+        regName.setAttribute('required', 'true');
+        regCity.setAttribute('required', 'true');
+      }
+    }
+
+    // Close Form Box
+    function closeFormBox() {
+      formOverlay.classList.remove('active');
+    }
+
+    // Optional: Close form if user clicks outside the box
+    formOverlay.addEventListener('click', function(e) {
+      if (e.target === formOverlay) {
+        closeFormBox();
+      }
+    });
+
+    // Handle Form Submission Logic
+    authForm.addEventListener('submit', function(e) {
+      e.preventDefault(); // Stop page from refreshing
+
+      if (currentMode === 'signup') {
+        // If they click 'Sign Up Now', simulate account creation and switch to Sign In mode
+        alert('Account successfully created! Please sign in to continue.');
+        authForm.reset(); // Clear the form fields
+        openFormBox('signin'); // Switch to Sign In mode
+      } else if (currentMode === 'signin') {
+        // If they click 'Access Account', navigate to home.html
+        window.location.href = 'home.html';
+      }
+    });
+  </script>
+
+</body>
+</html>

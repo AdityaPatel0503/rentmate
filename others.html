@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent Mate | Misc Rentals</title>
+  <style>
+    /* -------------------------------------------------------------
+       1. BRAND IDENTITY & THEME VARIABLES
+    ------------------------------------------------------------- */
+    :root {
+      /* Dark Theme (Default) */
+      --bg-base: #090909;
+      --bg-surface: rgba(18, 18, 18, 0.75);
+      --bg-surface-solid: #121212;
+      
+      --primary-orange: #FF8C42;
+      --secondary-gold: #FFD166;
+      --accent-teal: #00D4B3;
+      --text-main: #FFFFFF;
+      --text-muted: #A0A0A0;
+      
+      --border-glass: rgba(255, 140, 66, 0.2);
+      --glass-blur: blur(20px);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      
+      --sidebar-width: 280px;
+    }
+
+    /* Light Theme Override */
+    [data-theme="light"] {
+      --bg-base: #F8FAFC;
+      --bg-surface: rgba(255, 255, 255, 0.85);
+      --bg-surface-solid: #FFFFFF;
+      
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      
+      --border-glass: rgba(255, 140, 66, 0.3);
+      --glass-shadow: 0 8px 32px 0 rgba(148, 163, 184, 0.15);
+    }
+
+    /* -------------------------------------------------------------
+       2. RESET & BASE LAYOUT
+    ------------------------------------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    }
+
+    body {
+      background: radial-gradient(circle at top right, rgba(255,140,66,0.05), transparent 40%),
+                  radial-gradient(circle at bottom left, rgba(0,212,179,0.05), transparent 40%);
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* -------------------------------------------------------------
+       3. LEFT SIDEBAR NAVIGATION
+    ------------------------------------------------------------- */
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: var(--bg-surface-solid);
+      border-right: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .brand-logo {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo img { height: 40px; border-radius: 8px; }
+
+    .nav-menu {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      list-style: none;
+      overflow-y: auto;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+
+    .nav-item a:hover {
+      background: rgba(255, 140, 66, 0.1);
+      color: var(--primary-orange);
+    }
+
+    .nav-item.active a {
+      background: linear-gradient(135deg, rgba(255,209,102,0.1), rgba(255,140,66,0.1));
+      color: var(--secondary-gold);
+      border-left: 3px solid var(--secondary-gold);
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .btn-back {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: rgba(255, 90, 90, 0.1);
+      color: #FF5A5A;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 90, 90, 0.2);
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 90, 90, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* -------------------------------------------------------------
+       4. CENTER CONSOLE & FILTERS
+    ------------------------------------------------------------- */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      width: calc(100% - var(--sidebar-width));
+      padding: 40px;
+    }
+
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .welcome-text h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+    .welcome-text p { color: var(--text-muted); font-size: 14px; }
+
+    .header-actions { display: flex; gap: 12px; }
+
+    .btn-action {
+      background: var(--bg-surface-solid);
+      border: 1px solid var(--border-glass);
+      padding: 10px 18px;
+      border-radius: 30px;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .btn-action:hover { border-color: var(--primary-orange); }
+    .btn-help { border-color: var(--accent-teal); color: var(--accent-teal); }
+
+    /* Filter Bar */
+    .filter-bar {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 32px;
+      box-shadow: var(--glass-shadow);
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .filter-group label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--primary-orange);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .filter-input {
+      background: rgba(128, 128, 128, 0.1);
+      border: 1px solid var(--border-glass);
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+
+    .filter-input:focus { border-color: var(--secondary-gold); }
+    .filter-input option { background: var(--bg-surface-solid); color: var(--text-main); }
+
+    /* -------------------------------------------------------------
+       5. GRID & CARDS
+    ------------------------------------------------------------- */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .listing-card {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .listing-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(255, 140, 66, 0.15);
+      border-color: var(--primary-orange);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      object-fit: cover;
+      border: 1px solid var(--border-glass);
+      background: #1A1A1A;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-category {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-teal);
+      font-weight: 700;
+      background: rgba(0, 212, 179, 0.1);
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .star { color: var(--secondary-gold); }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .price { font-size: 16px; font-weight: 800; color: var(--text-main); }
+    .price span { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+
+    .btn-book {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--secondary-gold), #F5B041);
+      color: #090909;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .btn-book:hover { box-shadow: 0 4px 15px rgba(255, 209, 102, 0.4); transform: scale(1.02); }
+
+    /* -------------------------------------------------------------
+       6. HELP DESK MODAL
+    ------------------------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    
+    .help-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%; max-width: 400px;
+      text-align: center;
+      transform: translateY(20px); transition: all 0.3s ease;
+    }
+    .modal-overlay.active .help-box { transform: translateY(0); }
+    .help-box h3 { margin-bottom: 12px; font-size: 22px; }
+    .help-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+    .help-box input, .help-box textarea { width: 100%; margin-bottom: 12px; }
+    .help-box textarea { resize: none; height: 100px; }
+
+    /* -------------------------------------------------------------
+       7. RESPONSIVE ENGINE
+    ------------------------------------------------------------- */
+    @media (max-width: 1024px) {
+      .sidebar { width: 80px; }
+      .brand-logo h2, .nav-item .nav-text, .btn-back .nav-text { display: none; }
+      .brand-logo { justify-content: center; padding: 20px 0; }
+      .nav-item a, .btn-back { justify-content: center; padding: 14px 0; }
+      .main-content { margin-left: 80px; width: calc(100% - 80px); padding: 24px; }
+    }
+    @media (max-width: 768px) {
+      .top-header { flex-direction: column; gap: 16px; }
+      .filter-group { min-width: 100%; }
+      .grid-container { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .sidebar { width: 60px; }
+      .main-content { margin-left: 60px; width: calc(100% - 60px); padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand-logo">
+      <img src="FullLogo.jpg" alt="Rent Mate Logo">
+      <h2 style="font-size: 18px; font-weight: 700;">Rent Mate</h2>
+    </div>
+    
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="home.html"><span class="nav-icon">🏠</span> <span class="nav-text">Home Dashboard</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="rental_room.html"><span class="nav-icon">🛏️</span> <span class="nav-text">Rental Room</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="furniture.html"><span class="nav-icon">🛋️</span> <span class="nav-text">Furniture</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="sports_arena.html"><span class="nav-icon">🎾</span> <span class="nav-text">Sports Arena</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="event_decor.html"><span class="nav-icon">✨</span> <span class="nav-text">Event Decor</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="party_lawn.html"><span class="nav-icon">🌿</span> <span class="nav-text">Party Lawn</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="DJ.html"><span class="nav-icon">🎧</span> <span class="nav-text">Call DJ</span></a>
+      </li>
+      <li class="nav-item active">
+        <a href="others.html"><span class="nav-icon">📦</span> <span class="nav-text">Others</span></a>
+      </li>
+    </ul>
+
+    <!-- Bottom Left Back Button -->
+    <div class="sidebar-bottom">
+      <a href="home.html" class="btn-back">
+        <span class="nav-icon">⬅️</span> 
+        <span class="nav-text">Back to Home</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- CENTER CONSOLE -->
+  <main class="main-content">
+    
+    <!-- Top Header & Actions -->
+    <header class="top-header">
+      <div class="welcome-text">
+        <h1>Miscellaneous Rentals</h1>
+        <p>Rent e-cycles, golf carts, projectors, and power backups instantly.</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="btn-action btn-help" onclick="openHelpDesk()">
+          <span>💬</span> Help Desk
+        </button>
+        <button class="btn-action" id="theme-toggle">
+          <span id="theme-icon">☀️</span> Light Mode
+        </button>
+      </div>
+    </header>
+
+    <!-- Smart Filtering System -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>Search Item</label>
+        <input type="text" id="filterSearch" class="filter-input" placeholder="e.g. Generator, E-Cycle...">
+      </div>
+      
+      <div class="filter-group">
+        <label>Category</label>
+        <select id="filterCategory" class="filter-input">
+          <option value="all">All Categories</option>
+          <option value="e-cycle">E-Cycles & Bikes</option>
+          <option value="golf-cart">Corporate Golf Carts</option>
+          <option value="projector">Projectors & Screens</option>
+          <option value="backup">Generators & UPS Backups</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Rental Price / Day</label>
+        <select id="filterPrice" class="filter-input">
+          <option value="all">All Prices</option>
+          <option value="budget">Under ₹2,000</option>
+          <option value="mid">₹2,000 - ₹5,000</option>
+          <option value="premium">Above ₹5,000</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>User Reviews</label>
+        <select id="filterRating" class="filter-input">
+          <option value="0">All Ratings</option>
+          <option value="4.8">Excellent (4.8 & up)</option>
+          <option value="4.5">Very Good (4.5 & up)</option>
+          <option value="4.0">Good (4.0 & up)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Dynamic Grid -->
+    <div class="grid-container" id="miscGrid">
+      <!-- Cards will be injected here via JavaScript -->
+    </div>
+
+  </main>
+
+  <!-- Help Desk Modal -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="help-box">
+      <h3>Equipment Support Desk</h3>
+      <p>Need custom technical setups or long-term vehicle rentals? Let us know.</p>
+      <input type="text" class="filter-input" placeholder="Your Name">
+      <textarea class="filter-input" placeholder="Describe your requirement..."></textarea>
+      <div style="display:flex; gap:12px; margin-top: 12px;">
+        <button class="btn-action" style="flex:1; justify-content:center;" onclick="closeHelpDesk()">Cancel</button>
+        <button class="btn-book" style="flex:1;" onclick="closeHelpDesk()">Send Message</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client-Side Engine (Filters, Theme, Data) -->
+  <script>
+    // 1. Theme Toggle Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (currentTheme === 'light') {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggleBtn.innerHTML = '☀️ Light Mode';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeToggleBtn.innerHTML = '🌙 Dark Mode';
+      }
+    });
+
+    // 2. Help Desk Logic
+    const helpModal = document.getElementById('helpModal');
+    function openHelpDesk() { helpModal.classList.add('active'); }
+    function closeHelpDesk() { helpModal.classList.remove('active'); }
+
+    // 3. Verified Image Maps for Misc Categories
+    const imgMap = {
+      'e-cycle': 'e-cycle .jpg',
+      'golf-cart': 'golf cart.jpg',
+      'projector': 'projector.jpg',
+      'backup': 'generator.jpg'
+    };
+
+    // 4. Inventory (20 Items)
+    const miscData = [
+      { id: 1, type: 'e-cycle', label: 'E-Cycle', title: 'Urban Commuter E-Bike', price: 400, rating: 4.8 },
+      { id: 2, type: 'e-cycle', label: 'E-Cycle', title: 'Mountain Trail E-Bike', price: 600, rating: 4.9 },
+      { id: 3, type: 'e-cycle', label: 'E-Cycle', title: 'Foldable City E-Cycle', price: 350, rating: 4.6 },
+      { id: 4, type: 'e-cycle', label: 'E-Cycle', title: 'Premium Hybrid E-Bike', price: 750, rating: 4.7 },
+      { id: 5, type: 'e-cycle', label: 'E-Cycle', title: 'Delivery Cargo E-Bike', price: 500, rating: 4.5 },
+      
+      { id: 6, type: 'golf-cart', label: 'Golf Cart', title: '4-Seater Corporate Cart', price: 2500, rating: 4.9 },
+      { id: 7, type: 'golf-cart', label: 'Golf Cart', title: '6-Seater Campus Cart', price: 3500, rating: 4.7 },
+      { id: 8, type: 'golf-cart', label: 'Golf Cart', title: 'Executive VIP Cart (AC)', price: 5500, rating: 5.0 },
+      { id: 9, type: 'golf-cart', label: 'Golf Cart', title: 'Utility Cargo Cart', price: 2200, rating: 4.6 },
+      { id: 10, type: 'golf-cart', label: 'Golf Cart', title: 'Event Shuttle Cart', price: 4000, rating: 4.8 },
+
+      { id: 11, type: 'projector', label: 'Projector', title: '4K Home Cinema Projector', price: 1500, rating: 4.9 },
+      { id: 12, type: 'projector', label: 'Projector', title: 'Corporate Laser Projector', price: 2800, rating: 4.8 },
+      { id: 13, type: 'projector', label: 'Projector', title: 'Portable Mini Projector', price: 800, rating: 4.5 },
+      { id: 14, type: 'projector', label: 'Projector', title: 'Outdoor Movie Night Kit', price: 3500, rating: 4.9 },
+      { id: 15, type: 'projector', label: 'Projector', title: 'High-Lumen Event Projector', price: 4500, rating: 4.7 },
+
+      { id: 16, type: 'backup', label: 'Power Backup', title: '5kVA Silent Generator', price: 2500, rating: 4.8 },
+      { id: 17, type: 'backup', label: 'Power Backup', title: '10kVA Party Generator', price: 4000, rating: 4.9 },
+      { id: 18, type: 'backup', label: 'Power Backup', title: 'Industrial 50kVA Generator', price: 12000, rating: 4.7 },
+      { id: 19, type: 'backup', label: 'Power Backup', title: 'Heavy Duty UPS (10kVA)', price: 3500, rating: 4.6 },
+      { id: 20, type: 'backup', label: 'Power Backup', title: 'Portable Battery Station', price: 1200, rating: 4.8 }
+    ];
+
+    // 5. Filtering & Rendering Engine
+    const miscGrid = document.getElementById('miscGrid');
+    const filterSearch = document.getElementById('filterSearch');
+    const filterCategory = document.getElementById('filterCategory');
+    const filterPrice = document.getElementById('filterPrice');
+    const filterRating = document.getElementById('filterRating');
+
+    function renderItems(items) {
+      miscGrid.innerHTML = '';
+      
+      if (items.length === 0) {
+        miscGrid.innerHTML = '<p style="color:var(--text-muted); grid-column:1/-1; text-align:center;">No items found matching your criteria.</p>';
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'listing-card';
+        
+        const imgUrl = imgMap[item.type];
+
+        card.innerHTML = `
+          <img src="${imgUrl}" alt="${item.label}" class="card-image">
+          <div class="card-meta">
+            <span class="card-category">${item.label}</span>
+          </div>
+          <h3 class="card-title" title="${item.title}">${item.title}</h3>
+          <div class="card-rating">
+            <span class="star">★</span> <strong style="color:var(--text-main)">${item.rating}</strong>
+          </div>
+          <div class="card-footer">
+            <div class="price">₹${item.price.toLocaleString('en-IN')} <span>/ day</span></div>
+            <!-- Links directly to payment7.html -->
+            <a href="payment7.html" class="btn-book">Book Now</a>
+          </div>
+        `;
+        miscGrid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const searchVal = filterSearch.value.toLowerCase();
+      const catVal = filterCategory.value;
+      const priceVal = filterPrice.value;
+      const ratingVal = parseFloat(filterRating.value);
+
+      const filtered = miscData.filter(item => {
+        // Search & Category Match
+        const matchSearch = item.title.toLowerCase().includes(searchVal);
+        const matchCat = catVal === 'all' || item.type === catVal;
+        
+        // Rating Match
+        const matchRating = item.rating >= ratingVal;
+        
+        // Price Match
+        let matchPrice = true;
+        if (priceVal === 'budget') matchPrice = item.price <= 2000;
+        else if (priceVal === 'mid') matchPrice = item.price > 2000 && item.price <= 5000;
+        else if (priceVal === 'premium') matchPrice = item.price > 5000;
+
+        return matchSearch && matchCat && matchRating && matchPrice;
+      });
+
+      renderItems(filtered);
+    }
+
+    // Attach Event Listeners to inputs
+    filterSearch.addEventListener('input', applyFilters);
+    filterCategory.addEventListener('change', applyFilters);
+    filterPrice.addEventListener('change', applyFilters);
+    filterRating.addEventListener('change', applyFilters);
+
+    // Initial Load
+    renderItems(miscData);
+  </script>
+
+</body>
+</html>

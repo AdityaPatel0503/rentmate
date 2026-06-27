@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent Mate | Call DJ Booking</title>
+  <style>
+    /* -------------------------------------------------------------
+       1. BRAND IDENTITY & THEME VARIABLES
+    ------------------------------------------------------------- */
+    :root {
+      /* Dark Theme (Default) */
+      --bg-base: #090909;
+      --bg-surface: rgba(18, 18, 18, 0.75);
+      --bg-surface-solid: #121212;
+      
+      --primary-orange: #FF8C42;
+      --secondary-gold: #FFD166;
+      --accent-teal: #00D4B3;
+      --text-main: #FFFFFF;
+      --text-muted: #A0A0A0;
+      
+      --border-glass: rgba(255, 140, 66, 0.2);
+      --glass-blur: blur(20px);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      
+      --sidebar-width: 280px;
+    }
+
+    /* Light Theme Override */
+    [data-theme="light"] {
+      --bg-base: #F8FAFC;
+      --bg-surface: rgba(255, 255, 255, 0.85);
+      --bg-surface-solid: #FFFFFF;
+      
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      
+      --border-glass: rgba(255, 140, 66, 0.3);
+      --glass-shadow: 0 8px 32px 0 rgba(148, 163, 184, 0.15);
+    }
+
+    /* -------------------------------------------------------------
+       2. RESET & BASE LAYOUT
+    ------------------------------------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    }
+
+    body {
+      background: radial-gradient(circle at top right, rgba(255,140,66,0.05), transparent 40%),
+                  radial-gradient(circle at bottom left, rgba(0,212,179,0.05), transparent 40%);
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* -------------------------------------------------------------
+       3. LEFT SIDEBAR NAVIGATION
+    ------------------------------------------------------------- */
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: var(--bg-surface-solid);
+      border-right: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .brand-logo {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo img { height: 40px; border-radius: 8px; }
+
+    .nav-menu {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      list-style: none;
+      overflow-y: auto;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+
+    .nav-item a:hover {
+      background: rgba(255, 140, 66, 0.1);
+      color: var(--primary-orange);
+    }
+
+    .nav-item.active a {
+      background: linear-gradient(135deg, rgba(255,209,102,0.1), rgba(255,140,66,0.1));
+      color: var(--secondary-gold);
+      border-left: 3px solid var(--secondary-gold);
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .btn-back {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: rgba(255, 90, 90, 0.1);
+      color: #FF5A5A;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 90, 90, 0.2);
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 90, 90, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* -------------------------------------------------------------
+       4. CENTER CONSOLE & FILTERS
+    ------------------------------------------------------------- */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      width: calc(100% - var(--sidebar-width));
+      padding: 40px;
+    }
+
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .welcome-text h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+    .welcome-text p { color: var(--text-muted); font-size: 14px; }
+
+    .header-actions { display: flex; gap: 12px; }
+
+    .btn-action {
+      background: var(--bg-surface-solid);
+      border: 1px solid var(--border-glass);
+      padding: 10px 18px;
+      border-radius: 30px;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .btn-action:hover { border-color: var(--primary-orange); }
+    .btn-help { border-color: var(--accent-teal); color: var(--accent-teal); }
+
+    /* Filter Bar */
+    .filter-bar {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 32px;
+      box-shadow: var(--glass-shadow);
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .filter-group label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--primary-orange);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .filter-input {
+      background: rgba(128, 128, 128, 0.1);
+      border: 1px solid var(--border-glass);
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+
+    .filter-input:focus { border-color: var(--secondary-gold); }
+    .filter-input option { background: var(--bg-surface-solid); color: var(--text-main); }
+
+    /* -------------------------------------------------------------
+       5. GRID & CARDS
+    ------------------------------------------------------------- */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .listing-card {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .listing-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(255, 140, 66, 0.15);
+      border-color: var(--primary-orange);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      object-fit: cover;
+      border: 1px solid var(--border-glass);
+      background: #1A1A1A;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-category {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-teal);
+      font-weight: 700;
+      background: rgba(0, 212, 179, 0.1);
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    .card-orders {
+      font-size: 11px;
+      color: var(--primary-orange);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 700;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .card-vendor {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .star { color: var(--secondary-gold); }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .price { font-size: 16px; font-weight: 800; color: var(--text-main); }
+    .price span { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+
+    .btn-book {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--secondary-gold), #F5B041);
+      color: #090909;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .btn-book:hover { box-shadow: 0 4px 15px rgba(255, 209, 102, 0.4); transform: scale(1.02); }
+
+    /* -------------------------------------------------------------
+       6. HELP DESK MODAL
+    ------------------------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    
+    .help-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%; max-width: 400px;
+      text-align: center;
+      transform: translateY(20px); transition: all 0.3s ease;
+    }
+    .modal-overlay.active .help-box { transform: translateY(0); }
+    .help-box h3 { margin-bottom: 12px; font-size: 22px; }
+    .help-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+    .help-box input, .help-box textarea { width: 100%; margin-bottom: 12px; }
+    .help-box textarea { resize: none; height: 100px; }
+
+    /* -------------------------------------------------------------
+       7. RESPONSIVE ENGINE
+    ------------------------------------------------------------- */
+    @media (max-width: 1024px) {
+      .sidebar { width: 80px; }
+      .brand-logo h2, .nav-item .nav-text, .btn-back .nav-text { display: none; }
+      .brand-logo { justify-content: center; padding: 20px 0; }
+      .nav-item a, .btn-back { justify-content: center; padding: 14px 0; }
+      .main-content { margin-left: 80px; width: calc(100% - 80px); padding: 24px; }
+    }
+    @media (max-width: 768px) {
+      .top-header { flex-direction: column; gap: 16px; }
+      .filter-group { min-width: 100%; }
+      .grid-container { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .sidebar { width: 60px; }
+      .main-content { margin-left: 60px; width: calc(100% - 60px); padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand-logo">
+      <img src="FullLogo.jpg" alt="Rent Mate Logo">
+      <h2 style="font-size: 18px; font-weight: 700;">Rent Mate</h2>
+    </div>
+    
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="home.html"><span class="nav-icon">🏠</span> <span class="nav-text">Home Dashboard</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="rental_room.html"><span class="nav-icon">🛏️</span> <span class="nav-text">Rental Room</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="furniture.html"><span class="nav-icon">🛋️</span> <span class="nav-text">Furniture</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="sports_arena.html"><span class="nav-icon">🎾</span> <span class="nav-text">Sports Arena</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="event_decor.html"><span class="nav-icon">✨</span> <span class="nav-text">Event Decor</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="party_lawn.html"><span class="nav-icon">🌿</span> <span class="nav-text">Party Lawn</span></a>
+      </li>
+      <li class="nav-item active">
+        <a href="DJ.html"><span class="nav-icon">🎧</span> <span class="nav-text">Call DJ</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="others.html"><span class="nav-icon">📦</span> <span class="nav-text">Others</span></a>
+      </li>
+    </ul>
+
+    <!-- Bottom Left Back Button -->
+    <div class="sidebar-bottom">
+      <a href="home.html" class="btn-back">
+        <span class="nav-icon">⬅️</span> 
+        <span class="nav-text">Back to Home</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- CENTER CONSOLE -->
+  <main class="main-content">
+    
+    <!-- Top Header & Actions -->
+    <header class="top-header">
+      <div class="welcome-text">
+        <h1>Book Professional DJs</h1>
+        <p>Elevate your event with top-rated artists and premium sound systems.</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="btn-action btn-help" onclick="openHelpDesk()">
+          <span>💬</span> Help Desk
+        </button>
+        <button class="btn-action" id="theme-toggle">
+          <span id="theme-icon">☀️</span> Light Mode
+        </button>
+      </div>
+    </header>
+
+    <!-- Smart Filtering System -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>Search DJ / Artist</label>
+        <input type="text" id="filterSearch" class="filter-input" placeholder="e.g. DJ Pulse, Navratri...">
+      </div>
+      
+      <div class="filter-group">
+        <label>Event Type</label>
+        <select id="filterType" class="filter-input">
+          <option value="all">All Events</option>
+          <option value="navratri">Family Navratri / Garba</option>
+          <option value="marriage">Marriage / Sangeet</option>
+          <option value="corporate">Corporate Party</option>
+          <option value="birthday">Birthday Party</option>
+          <option value="social">Social Meeting / Mixer</option>
+          <option value="cultural">Cultural Show Space</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Booking Price / Event</label>
+        <select id="filterPrice" class="filter-input">
+          <option value="all">All Prices</option>
+          <option value="budget">Under ₹15,000</option>
+          <option value="mid">₹15,000 - ₹40,000</option>
+          <option value="premium">Above ₹40,000</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Guest Reviews</label>
+        <select id="filterRating" class="filter-input">
+          <option value="0">All Ratings</option>
+          <option value="4.8">Elite (4.8 & up)</option>
+          <option value="4.5">Excellent (4.5 & up)</option>
+          <option value="4.0">Very Good (4.0 & up)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Dynamic Grid -->
+    <div class="grid-container" id="djGrid">
+      <!-- Cards will be injected here via JavaScript -->
+    </div>
+
+  </main>
+
+  <!-- Help Desk Modal -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="help-box">
+      <h3>Audio Support Desk</h3>
+      <p>Need custom sound setups or specific music genres? Let us know.</p>
+      <input type="text" class="filter-input" placeholder="Your Name">
+      <textarea class="filter-input" placeholder="Describe your sound requirements..."></textarea>
+      <div style="display:flex; gap:12px; margin-top: 12px;">
+        <button class="btn-action" style="flex:1; justify-content:center;" onclick="closeHelpDesk()">Cancel</button>
+        <button class="btn-book" style="flex:1;" onclick="closeHelpDesk()">Send Message</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client-Side Engine (Filters, Theme, Data) -->
+  <script>
+    // 1. Theme Toggle Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (currentTheme === 'light') {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggleBtn.innerHTML = '☀️ Light Mode';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeToggleBtn.innerHTML = '🌙 Dark Mode';
+      }
+    });
+
+    // 2. Help Desk Logic
+    const helpModal = document.getElementById('helpModal');
+    function openHelpDesk() { helpModal.classList.add('active'); }
+    function closeHelpDesk() { helpModal.classList.remove('active'); }
+
+    // 3. Verified Image Maps for DJ Event Types (No Black Spots)
+    const imgMap = {
+      'Navratri': 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&q=80',
+      'Marriage': 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=500&q=80',
+      'Corporate': 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=500&q=80',
+      'Birthday': 'birthday DJ.jpg',
+      'Social': 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=500&q=80',
+      'Cultural': 'culture DJ.jpg',
+      'General': 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=500&q=80'
+    };
+
+    // 4. DJ Inventory (18 Premium Profiles)
+    const djData = [
+      { id: 1, type: 'Navratri', title: 'DJ Pulse - Garba King', genre: 'Folk / EDM', price: 45000, rating: 4.9, orders: 420 },
+      { id: 2, type: 'Navratri', title: 'Rhythm Masters Live', genre: 'Traditional / Fusion', price: 65000, rating: 5.0, orders: 150 },
+      { id: 3, type: 'Navratri', title: 'DJ Aakash - Navratri Set', genre: 'Bollywood / Garba', price: 25000, rating: 4.7, orders: 310 },
+      
+      { id: 4, type: 'Marriage', title: 'DJ Vibe Sangeet Setup', genre: 'Bollywood / Punjabi', price: 35000, rating: 4.8, orders: 520 },
+      { id: 5, type: 'Marriage', title: 'The Wedding Spinners', genre: 'Pop / Romantic', price: 80000, rating: 4.9, orders: 280 },
+      { id: 6, type: 'Marriage', title: 'DJ Sonic Baraat Special', genre: 'Desi / Dhol Mix', price: 20000, rating: 4.5, orders: 410 },
+      
+      { id: 7, type: 'Corporate', title: 'Elite Sound Syndicate', genre: 'Lounge / Deep House', price: 55000, rating: 4.8, orders: 195 },
+      { id: 8, type: 'Corporate', title: 'DJ Matrix Business Events', genre: 'Commercial / Top 40', price: 30000, rating: 4.6, orders: 340 },
+      { id: 9, type: 'Corporate', title: 'Acoustic Groove Makers', genre: 'Jazz / Ambient', price: 40000, rating: 4.7, orders: 110 },
+      
+      { id: 10, type: 'Birthday', title: 'DJ Spark Kids & Teens', genre: 'Pop / Hip-Hop', price: 12000, rating: 4.8, orders: 620 },
+      { id: 11, type: 'Birthday', title: 'Bass Drop 18th Birthday', genre: 'EDM / Trap', price: 18000, rating: 4.9, orders: 290 },
+      { id: 12, type: 'Birthday', title: 'Retro Spinners (50th Bash)', genre: '80s / 90s Classic', price: 15000, rating: 4.7, orders: 180 },
+      
+      { id: 13, type: 'Social', title: 'DJ Flow Mixer Lounge', genre: 'R&B / Soul', price: 22000, rating: 4.6, orders: 245 },
+      { id: 14, type: 'Social', title: 'The Sunset Chill Set', genre: 'Tropical House', price: 28000, rating: 4.8, orders: 140 },
+      { id: 15, type: 'Social', title: 'DJ Sync Community Event', genre: 'Multi-genre', price: 10000, rating: 4.4, orders: 520 },
+      
+      { id: 16, type: 'Cultural', title: 'Symphony Live Deck', genre: 'Classical / Fusion', price: 50000, rating: 4.9, orders: 125 },
+      { id: 17, type: 'Cultural', title: 'DJ Echo Stage Setup', genre: 'World Music', price: 35000, rating: 4.8, orders: 205 },
+      { id: 18, type: 'Cultural', title: 'Aura Soundscapes', genre: 'Instrumental Mix', price: 42000, rating: 4.7, orders: 160 }
+    ];
+
+    // 5. Filtering & Rendering Engine
+    const djGrid = document.getElementById('djGrid');
+    const filterSearch = document.getElementById('filterSearch');
+    const filterType = document.getElementById('filterType');
+    const filterPrice = document.getElementById('filterPrice');
+    const filterRating = document.getElementById('filterRating');
+
+    function renderItems(items) {
+      djGrid.innerHTML = '';
+      
+      if (items.length === 0) {
+        djGrid.innerHTML = '<p style="color:var(--text-muted); grid-column:1/-1; text-align:center;">No DJs found matching your criteria.</p>';
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'listing-card';
+        
+        // Grab the correct image safely from our map
+        const imgUrl = imgMap[item.type] || imgMap['General'];
+
+        card.innerHTML = `
+          <img src="${imgUrl}" alt="${item.type}" class="card-image">
+          <div class="card-meta">
+            <span class="card-category">${item.type}</span>
+            <span class="card-orders">🎧 ${item.orders} Parties</span>
+          </div>
+          <h3 class="card-title" title="${item.title}">${item.title}</h3>
+          <p class="card-vendor">Genre: ${item.genre}</p>
+          <div class="card-rating">
+            <span class="star">★</span> <strong style="color:var(--text-main)">${item.rating}</strong>
+          </div>
+          <div class="card-footer">
+            <div class="price">₹${item.price.toLocaleString('en-IN')} <span>/ event</span></div>
+            <!-- Links directly to payment6.html -->
+            <a href="payment6.html" class="btn-book">Book Now</a>
+          </div>
+        `;
+        djGrid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const searchVal = filterSearch.value.toLowerCase();
+      const typeVal = filterType.value.toLowerCase();
+      const priceVal = filterPrice.value;
+      const ratingVal = parseFloat(filterRating.value);
+
+      const filtered = djData.filter(item => {
+        // Search & Type Match
+        const matchSearch = item.title.toLowerCase().includes(searchVal) || item.genre.toLowerCase().includes(searchVal);
+        const matchType = typeVal === 'all' || item.type.toLowerCase().includes(typeVal);
+        
+        // Rating Match
+        const matchRating = item.rating >= ratingVal;
+        
+        // Price Match
+        let matchPrice = true;
+        if (priceVal === 'budget') matchPrice = item.price <= 15000;
+        else if (priceVal === 'mid') matchPrice = item.price > 15000 && item.price <= 40000;
+        else if (priceVal === 'premium') matchPrice = item.price > 40000;
+
+        return matchSearch && matchType && matchRating && matchPrice;
+      });
+
+      renderItems(filtered);
+    }
+
+    // Attach Event Listeners to inputs
+    filterSearch.addEventListener('input', applyFilters);
+    filterType.addEventListener('change', applyFilters);
+    filterPrice.addEventListener('change', applyFilters);
+    filterRating.addEventListener('change', applyFilters);
+
+    // Initial Load
+    renderItems(djData);
+  </script>
+
+</body>
+</html>

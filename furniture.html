@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent Mate | Furniture Rentals</title>
+  <style>
+    /* -------------------------------------------------------------
+       1. BRAND IDENTITY & THEME VARIABLES
+    ------------------------------------------------------------- */
+    :root {
+      /* Dark Theme (Default) */
+      --bg-base: #090909;
+      --bg-surface: rgba(18, 18, 18, 0.75);
+      --bg-surface-solid: #121212;
+      
+      --primary-orange: #FF8C42;
+      --secondary-gold: #FFD166;
+      --accent-teal: #00D4B3;
+      --text-main: #FFFFFF;
+      --text-muted: #A0A0A0;
+      
+      --border-glass: rgba(255, 140, 66, 0.2);
+      --glass-blur: blur(20px);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      
+      --sidebar-width: 280px;
+    }
+
+    /* Light Theme Override */
+    [data-theme="light"] {
+      --bg-base: #F8FAFC;
+      --bg-surface: rgba(255, 255, 255, 0.85);
+      --bg-surface-solid: #FFFFFF;
+      
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      
+      --border-glass: rgba(255, 140, 66, 0.3);
+      --glass-shadow: 0 8px 32px 0 rgba(148, 163, 184, 0.15);
+    }
+
+    /* -------------------------------------------------------------
+       2. RESET & BASE LAYOUT
+    ------------------------------------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    }
+
+    body {
+      background: radial-gradient(circle at top right, rgba(255,140,66,0.05), transparent 40%),
+                  radial-gradient(circle at bottom left, rgba(0,212,179,0.05), transparent 40%);
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* -------------------------------------------------------------
+       3. LEFT SIDEBAR NAVIGATION
+    ------------------------------------------------------------- */
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: var(--bg-surface-solid);
+      border-right: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .brand-logo {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo img { height: 40px; border-radius: 8px; }
+
+    .nav-menu {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      list-style: none;
+      overflow-y: auto;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+
+    .nav-item a:hover {
+      background: rgba(255, 140, 66, 0.1);
+      color: var(--primary-orange);
+    }
+
+    .nav-item.active a {
+      background: linear-gradient(135deg, rgba(255,209,102,0.1), rgba(255,140,66,0.1));
+      color: var(--secondary-gold);
+      border-left: 3px solid var(--secondary-gold);
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .btn-back {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: rgba(255, 90, 90, 0.1);
+      color: #FF5A5A;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 90, 90, 0.2);
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 90, 90, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* -------------------------------------------------------------
+       4. CENTER CONSOLE & FILTERS
+    ------------------------------------------------------------- */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      width: calc(100% - var(--sidebar-width));
+      padding: 40px;
+    }
+
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .welcome-text h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+    .welcome-text p { color: var(--text-muted); font-size: 14px; }
+
+    .header-actions { display: flex; gap: 12px; }
+
+    .btn-action {
+      background: var(--bg-surface-solid);
+      border: 1px solid var(--border-glass);
+      padding: 10px 18px;
+      border-radius: 30px;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .btn-action:hover { border-color: var(--primary-orange); }
+    .btn-help { border-color: var(--accent-teal); color: var(--accent-teal); }
+
+    /* Filter Bar */
+    .filter-bar {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 32px;
+      box-shadow: var(--glass-shadow);
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .filter-group label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--primary-orange);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .filter-input {
+      background: rgba(128, 128, 128, 0.1);
+      border: 1px solid var(--border-glass);
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+
+    .filter-input:focus { border-color: var(--secondary-gold); }
+    .filter-input option { background: var(--bg-surface-solid); color: var(--text-main); }
+
+    /* -------------------------------------------------------------
+       5. FURNITURE GRID & CARDS
+    ------------------------------------------------------------- */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 24px;
+    }
+
+    .listing-card {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .listing-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(255, 140, 66, 0.15);
+      border-color: var(--primary-orange);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      object-fit: cover;
+      border: 1px solid var(--border-glass);
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-category {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-teal);
+      font-weight: 700;
+    }
+
+    .card-material {
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .star { color: var(--secondary-gold); }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .price { font-size: 16px; font-weight: 800; color: var(--text-main); }
+    .price span { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+
+    .btn-book {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--secondary-gold), #F5B041);
+      color: #090909;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .btn-book:hover { box-shadow: 0 4px 15px rgba(255, 209, 102, 0.4); transform: scale(1.02); }
+
+    /* -------------------------------------------------------------
+       6. HELP DESK MODAL
+    ------------------------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    
+    .help-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%; max-width: 400px;
+      text-align: center;
+      transform: translateY(20px); transition: all 0.3s ease;
+    }
+    .modal-overlay.active .help-box { transform: translateY(0); }
+    .help-box h3 { margin-bottom: 12px; font-size: 22px; }
+    .help-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+    .help-box input, .help-box textarea { width: 100%; margin-bottom: 12px; }
+    .help-box textarea { resize: none; height: 100px; }
+
+    /* -------------------------------------------------------------
+       7. RESPONSIVE ENGINE
+    ------------------------------------------------------------- */
+    @media (max-width: 1024px) {
+      .sidebar { width: 80px; }
+      .brand-logo h2, .nav-item .nav-text, .btn-back .nav-text { display: none; }
+      .brand-logo { justify-content: center; padding: 20px 0; }
+      .nav-item a, .btn-back { justify-content: center; padding: 14px 0; }
+      .main-content { margin-left: 80px; width: calc(100% - 80px); padding: 24px; }
+    }
+
+    @media (max-width: 768px) {
+      .top-header { flex-direction: column; gap: 16px; }
+      .filter-group { min-width: 100%; }
+      .grid-container { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .sidebar { width: 60px; }
+      .main-content { margin-left: 60px; width: calc(100% - 60px); padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand-logo">
+      <img src="FullLogo.jpg" alt="Rent Mate Logo">
+      <h2 style="font-size: 18px; font-weight: 700;">Rent Mate</h2>
+    </div>
+    
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="home.html"><span class="nav-icon">🏠</span> <span class="nav-text">Home Dashboard</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="rental_room.html"><span class="nav-icon">🛏️</span> <span class="nav-text">Rental Room</span></a>
+      </li>
+      <li class="nav-item active">
+        <a href="furniture.html"><span class="nav-icon">🛋️</span> <span class="nav-text">Furniture</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="sports_arena.html"><span class="nav-icon">🎾</span> <span class="nav-text">Sports Arena</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="event_decor.html"><span class="nav-icon">✨</span> <span class="nav-text">Event Decor</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="party_lawn.html"><span class="nav-icon">🌿</span> <span class="nav-text">Party Lawn</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="DJ.html"><span class="nav-icon">🎧</span> <span class="nav-text">Call DJ</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="others.html"><span class="nav-icon">📦</span> <span class="nav-text">Others</span></a>
+      </li>
+    </ul>
+
+    <div class="sidebar-bottom">
+      <a href="home.html" class="btn-back">
+        <span class="nav-icon">⬅️</span> 
+        <span class="nav-text">Back to Home</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    
+    <header class="top-header">
+      <div class="welcome-text">
+        <h1>Premium Furniture Rentals</h1>
+        <p>Rent luxury beds, ergonomic chairs, and beautiful dining tables.</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="btn-action btn-help" onclick="openHelpDesk()">
+          <span>💬</span> Help Desk
+        </button>
+        <button class="btn-action" id="theme-toggle">
+          <span id="theme-icon">☀️</span> Light Mode
+        </button>
+      </div>
+    </header>
+
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>Search Furniture</label>
+        <input type="text" id="filterSearch" class="filter-input" placeholder="e.g. Sofa, Bed, Table...">
+      </div>
+      
+      <div class="filter-group">
+        <label>Material Type</label>
+        <select id="filterMaterial" class="filter-input">
+          <option value="all">All Materials</option>
+          <option value="wood">Solid Wood</option>
+          <option value="metal">Premium Metal</option>
+          <option value="plastic">Durable Plastic</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Price Range</label>
+        <select id="filterPrice" class="filter-input">
+          <option value="all">All Prices</option>
+          <option value="budget">₹2,000 - ₹15,000 (Budget)</option>
+          <option value="mid">₹15,000 - ₹50,000 (Standard)</option>
+          <option value="luxury">₹50,000 - ₹2,00,000 (Luxury)</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Guest Reviews</label>
+        <select id="filterRating" class="filter-input">
+          <option value="0">All Ratings</option>
+          <option value="4.5">Excellent (4.5 & up)</option>
+          <option value="4.0">Very Good (4.0 & up)</option>
+          <option value="3.0">Good (3.0 & up)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-container" id="furnitureGrid">
+      </div>
+
+  </main>
+
+  <div class="modal-overlay" id="helpModal">
+    <div class="help-box">
+      <h3>24/7 Support Desk</h3>
+      <p>Need help finding the right furniture? Let us know.</p>
+      <input type="text" class="filter-input" placeholder="Your Name">
+      <textarea class="filter-input" placeholder="How can we help you?"></textarea>
+      <div style="display:flex; gap:12px; margin-top: 12px;">
+        <button class="btn-action" style="flex:1; justify-content:center;" onclick="closeHelpDesk()">Cancel</button>
+        <button class="btn-book" style="flex:1;" onclick="closeHelpDesk()">Send Message</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Theme Toggle Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (currentTheme === 'light') {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggleBtn.innerHTML = '☀️ Light Mode';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeToggleBtn.innerHTML = '🌙 Dark Mode';
+      }
+    });
+
+    // 2. Help Desk Logic
+    const helpModal = document.getElementById('helpModal');
+    function openHelpDesk() { helpModal.classList.add('active'); }
+    function closeHelpDesk() { helpModal.classList.remove('active'); }
+
+    // 3. Furniture Inventory (52 Items from ₹2,000 to ₹2,00,000)
+    const furnitureData = [
+      { id: 1, title: 'Luxury Teak Wood Sofa', cat: 'Sofa', material: 'wood', price: 85000, rating: 4.8, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&q=80' },
+      { id: 2, title: 'Minimalist Metal Bed Frame', cat: 'Bed', material: 'metal', price: 18000, rating: 4.5, img: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=500&q=80' },
+      { id: 3, title: 'Modern Plastic Dining Chair', cat: 'Chair', material: 'plastic', price: 2500, rating: 4.0, img: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=500&q=80' },
+      { id: 4, title: 'Royal Oak Dining Table', cat: 'Table', material: 'wood', price: 120000, rating: 4.9, img: 'https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=500&q=80' },
+      { id: 5, title: 'Industrial Steel Desk', cat: 'Desk', material: 'metal', price: 35000, rating: 4.6, img: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=500&q=80' },
+      { id: 6, title: 'Outdoor Plastic Lounger', cat: 'Outdoor', material: 'plastic', price: 8000, rating: 3.8, img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500&q=80' },
+      { id: 8, title: 'Ergonomic Office Chair', cat: 'Chair', material: 'plastic', price: 12000, rating: 4.4, img: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=500&q=80' },
+      { id: 9, title: 'Brass Accent Coffee Table', cat: 'Table', material: 'metal', price: 42000, rating: 4.8, img: 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?w=500&q=80' },
+      { id: 10, title: 'Carved Mahogany King Bed', cat: 'Bed', material: 'wood', price: 180000, rating: 5.0, img: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?w=500&q=80' },
+      
+      { id: 11, title: 'Compact Folding Metal Chair', cat: 'Chair', material: 'metal', price: 3000, rating: 4.1, img: 'furniture.jpg' },
+      { id: 12, title: 'Acrylic Transparent Desk', cat: 'Desk', material: 'plastic', price: 28000, rating: 4.3, img: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=500&q=80' },
+      { id: 13, title: 'Rustic Pine Bookshelf', cat: 'Storage', material: 'wood', price: 25000, rating: 4.5, img: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?w=500&q=80' },
+      { id: 14, title: 'Wrought Iron Patio Set', cat: 'Outdoor', material: 'metal', price: 55000, rating: 4.7, img: 'https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=500&q=80' },
+      { id: 15, title: 'Polycarbonate Bar Stool', cat: 'Chair', material: 'plastic', price: 4500, rating: 3.9, img: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=500&q=80' },
+      { id: 16, title: 'Cherry Wood TV Unit', cat: 'Storage', material: 'wood', price: 60000, rating: 4.6, img: 'furniture house.jpg' },
+      { id: 17, title: 'Stainless Steel Rack', cat: 'Storage', material: 'metal', price: 15000, rating: 4.2, img: 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?w=500&q=80' },
+      { id: 18, title: 'Molded Plastic Kids Table', cat: 'Table', material: 'plastic', price: 2200, rating: 4.0, img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500&q=80' },
+      { id: 19, title: 'Chesterfield Leather & Wood Sofa', cat: 'Sofa', material: 'wood', price: 195000, rating: 5.0, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&q=80' },
+      { id: 20, title: 'Aluminum Gaming Desk', cat: 'Desk', material: 'metal', price: 48000, rating: 4.8, img: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=500&q=80' },
+      
+      { id: 21, title: 'Designer Plastic Tub Chair', cat: 'Chair', material: 'plastic', price: 6500, rating: 4.1, img: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=500&q=80' },
+      { id: 22, title: 'Solid Ash Wood Dining Set', cat: 'Table', material: 'wood', price: 140000, rating: 4.9, img: 'https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=500&q=80' },
+      { id: 25, title: 'Bespoke Oak Bed Frame', cat: 'Bed', material: 'wood', price: 165000, rating: 4.9, img: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?w=500&q=80' },
+      { id: 26, title: 'Chrome Glass Center Table', cat: 'Table', material: 'metal', price: 38000, rating: 4.4, img: 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?w=500&q=80' },
+      { id: 27, title: 'Stackable Plastic Chair Set', cat: 'Chair', material: 'plastic', price: 4000, rating: 4.2, img: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=500&q=80' },
+      { id: 28, title: 'Bamboo Eco-Friendly Sofa', cat: 'Sofa', material: 'wood', price: 75000, rating: 4.6, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&q=80' },
+      { id: 29, title: 'Heavy Duty Steel Bunk Bed', cat: 'Bed', material: 'metal', price: 29000, rating: 4.3, img: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=500&q=80' },
+      { id: 30, title: 'Resin Garden Bench', cat: 'Outdoor', material: 'plastic', price: 11000, rating: 4.0, img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500&q=80' },
+      
+      { id: 31, title: 'Handcrafted Mango Wood Chest', cat: 'Storage', material: 'wood', price: 55000, rating: 4.7, img: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?w=500&q=80' },
+      { id: 32, title: 'Industrial Iron Console Table', cat: 'Table', material: 'metal', price: 32000, rating: 4.5, img: 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?w=500&q=80' },
+      { id: 34, title: 'Premium Cedar Wardrobe', cat: 'Storage', material: 'wood', price: 190000, rating: 4.9, img: 'furniture.jpg' },
+      { id: 36, title: 'Clear Acrylic Nightstand', cat: 'Table', material: 'plastic', price: 14000, rating: 4.3, img: 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?w=500&q=80' },
+      { id: 37, title: 'Rosewood Centerpiece Table', cat: 'Table', material: 'wood', price: 110000, rating: 4.8, img: 'https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=500&q=80' },
+      { id: 38, title: 'Metal Grid Wall Shelf', cat: 'Storage', material: 'metal', price: 7500, rating: 4.2, img: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?w=500&q=80' },
+      { id: 39, title: 'Plastic Molded Rocking Chair', cat: 'Chair', material: 'plastic', price: 9500, rating: 4.4, img: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=500&q=80' },
+      { id: 40, title: 'Teak Wood Recliner Sofa', cat: 'Sofa', material: 'wood', price: 130000, rating: 4.9, img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&q=80' },
+      
+      { id: 41, title: 'Copper Finish Bed Frame', cat: 'Bed', material: 'metal', price: 65000, rating: 4.7, img: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=500&q=80' },
+      { id: 42, title: 'Polymer Office Desk', cat: 'Desk', material: 'plastic', price: 16000, rating: 4.0, img: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=500&q=80' },
+      { id: 43, title: 'Pine Wood Study Desk', cat: 'Desk', material: 'wood', price: 21000, rating: 4.5, img: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=500&q=80' },
+      { id: 44, title: 'Cast Iron Garden Table', cat: 'Outdoor', material: 'metal', price: 42000, rating: 4.6, img: 'https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=500&q=80' },
+      { id: 45, title: 'Plastic Folding Picnic Table', cat: 'Outdoor', material: 'plastic', price: 6000, rating: 3.9, img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500&q=80' },
+      { id: 47, title: 'Gold Finish Steel Rack', cat: 'Storage', material: 'metal', price: 27000, rating: 4.4, img: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?w=500&q=80' },
+      { id: 48, title: 'Kids Plastic Bed Frame', cat: 'Bed', material: 'plastic', price: 12500, rating: 4.1, img: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=500&q=80' },
+      { id: 49, title: 'Classic Walnut Wood Bed', cat: 'Bed', material: 'wood', price: 95000, rating: 4.8, img: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?w=500&q=80' },
+      
+      { id: 51, title: 'Acrylic Transparent Chair', cat: 'Chair', material: 'plastic', price: 11000, rating: 4.2, img: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=500&q=80' },
+      { id: 52, title: 'Luxury Mahogany Dining Set', cat: 'Table', material: 'wood', price: 198000, rating: 5.0, img: 'https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=500&q=80' }
+    ];
+
+    // 4. Filtering & Rendering Engine
+    const furnitureGrid = document.getElementById('furnitureGrid');
+    const filterSearch = document.getElementById('filterSearch');
+    const filterMaterial = document.getElementById('filterMaterial');
+    const filterPrice = document.getElementById('filterPrice');
+    const filterRating = document.getElementById('filterRating');
+
+    function renderItems(items) {
+      furnitureGrid.innerHTML = '';
+      
+      if (items.length === 0) {
+        furnitureGrid.innerHTML = '<p style="color:var(--text-muted); grid-column:1/-1; text-align:center;">No furniture found matching your criteria.</p>';
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'listing-card';
+        
+        // Make material string capitalized
+        const matCapitalized = item.material.charAt(0).toUpperCase() + item.material.slice(1);
+
+        card.innerHTML = `
+          <img src="${item.img}" alt="${item.title}" class="card-image">
+          <div class="card-meta">
+            <span class="card-category">${item.cat}</span>
+            <span class="card-material">${matCapitalized}</span>
+          </div>
+          <h3 class="card-title" title="${item.title}">${item.title}</h3>
+          <div class="card-rating">
+            <span class="star">★</span> <strong style="color:var(--text-main)">${item.rating}</strong>
+          </div>
+          <div class="card-footer">
+            <div class="price">₹${item.price.toLocaleString('en-IN')} <span>/ term</span></div>
+            <a href="payment2.html" class="btn-book">Rent Now</a>
+          </div>
+        `;
+        furnitureGrid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const searchVal = filterSearch.value.toLowerCase();
+      const matVal = filterMaterial.value;
+      const priceVal = filterPrice.value;
+      const ratingVal = parseFloat(filterRating.value);
+
+      const filtered = furnitureData.filter(item => {
+        // Search & Category Match
+        const matchSearch = item.title.toLowerCase().includes(searchVal) || item.cat.toLowerCase().includes(searchVal);
+        
+        // Material Match
+        const matchMat = matVal === 'all' || item.material === matVal;
+
+        // Rating Match
+        const matchRating = item.rating >= ratingVal;
+        
+        // Price Match
+        let matchPrice = true;
+        if (priceVal === 'budget') matchPrice = item.price <= 15000;
+        else if (priceVal === 'mid') matchPrice = item.price > 15000 && item.price <= 50000;
+        else if (priceVal === 'luxury') matchPrice = item.price > 50000;
+
+        return matchSearch && matchMat && matchRating && matchPrice;
+      });
+
+      renderItems(filtered);
+    }
+
+    // Attach Event Listeners to inputs
+    filterSearch.addEventListener('input', applyFilters);
+    filterMaterial.addEventListener('change', applyFilters);
+    filterPrice.addEventListener('change', applyFilters);
+    filterRating.addEventListener('change', applyFilters);
+
+    // Initial Load
+    renderItems(furnitureData);
+  </script>
+
+</body>
+</html>

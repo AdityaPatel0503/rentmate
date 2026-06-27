@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent Mate | Rental Rooms</title>
+  <style>
+    /* -------------------------------------------------------------
+       1. BRAND IDENTITY & THEME VARIABLES
+    ------------------------------------------------------------- */
+    :root {
+      /* Dark Theme (Default) */
+      --bg-base: #090909;
+      --bg-surface: rgba(18, 18, 18, 0.75);
+      --bg-surface-solid: #121212;
+      
+      --primary-orange: #FF8C42;
+      --secondary-gold: #FFD166;
+      --accent-teal: #00D4B3;
+      --text-main: #FFFFFF;
+      --text-muted: #A0A0A0;
+      
+      --border-glass: rgba(255, 140, 66, 0.2);
+      --glass-blur: blur(20px);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      
+      --sidebar-width: 280px;
+    }
+
+    /* Light Theme Override */
+    [data-theme="light"] {
+      --bg-base: #F8FAFC;
+      --bg-surface: rgba(255, 255, 255, 0.85);
+      --bg-surface-solid: #FFFFFF;
+      
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      
+      --border-glass: rgba(255, 140, 66, 0.3);
+      --glass-shadow: 0 8px 32px 0 rgba(148, 163, 184, 0.15);
+    }
+
+    /* -------------------------------------------------------------
+       2. RESET & BASE LAYOUT
+    ------------------------------------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    }
+
+    body {
+      background: radial-gradient(circle at top right, rgba(255,140,66,0.05), transparent 40%),
+                  radial-gradient(circle at bottom left, rgba(0,212,179,0.05), transparent 40%);
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* -------------------------------------------------------------
+       3. LEFT SIDEBAR NAVIGATION
+    ------------------------------------------------------------- */
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: var(--bg-surface-solid);
+      border-right: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .brand-logo {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo img { height: 40px; border-radius: 8px; }
+
+    .nav-menu {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      list-style: none;
+      overflow-y: auto;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+
+    .nav-item a:hover {
+      background: rgba(255, 140, 66, 0.1);
+      color: var(--primary-orange);
+    }
+
+    .nav-item.active a {
+      background: linear-gradient(135deg, rgba(255,209,102,0.1), rgba(255,140,66,0.1));
+      color: var(--secondary-gold);
+      border-left: 3px solid var(--secondary-gold);
+    }
+
+    /* -------------------------------------------------------------
+       4. CENTER CONSOLE & FILTERS
+    ------------------------------------------------------------- */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      width: calc(100% - var(--sidebar-width));
+      padding: 40px;
+    }
+
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .welcome-text h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+    .welcome-text p { color: var(--text-muted); font-size: 14px; }
+
+    .header-actions { display: flex; gap: 12px; }
+
+    .btn-action {
+      background: var(--bg-surface-solid);
+      border: 1px solid var(--border-glass);
+      padding: 10px 18px;
+      border-radius: 30px;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .btn-action:hover { border-color: var(--primary-orange); }
+    .btn-help { border-color: var(--accent-teal); color: var(--accent-teal); }
+
+    /* Filter Bar */
+    .filter-bar {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 32px;
+      box-shadow: var(--glass-shadow);
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .filter-group label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--primary-orange);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .filter-input {
+      background: rgba(128, 128, 128, 0.1);
+      border: 1px solid var(--border-glass);
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .filter-input:focus { border-color: var(--secondary-gold); }
+    .filter-input option { background: var(--bg-surface-solid); }
+
+    /* -------------------------------------------------------------
+       5. ROOM GRID & CARDS
+    ------------------------------------------------------------- */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .listing-card {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .listing-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(255, 140, 66, 0.15);
+      border-color: var(--primary-orange);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      object-fit: cover;
+      border: 1px solid var(--border-glass);
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-category {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-teal);
+      font-weight: 700;
+    }
+
+    .card-distance {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-area {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .star { color: var(--secondary-gold); }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .price { font-size: 18px; font-weight: 800; color: var(--text-main); }
+    .price span { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+
+    .btn-book {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--secondary-gold), #F5B041);
+      color: #090909;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .btn-book:hover { box-shadow: 0 4px 15px rgba(255, 209, 102, 0.4); transform: scale(1.02); }
+
+    /* -------------------------------------------------------------
+       6. HELP DESK MODAL
+    ------------------------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    
+    .help-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%; max-width: 400px;
+      text-align: center;
+      transform: translateY(20px); transition: all 0.3s ease;
+    }
+    .modal-overlay.active .help-box { transform: translateY(0); }
+    .help-box h3 { margin-bottom: 12px; font-size: 22px; }
+    .help-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+    .help-box input, .help-box textarea { width: 100%; margin-bottom: 12px; }
+    .help-box textarea { resize: none; height: 100px; }
+  </style>
+</head>
+<body>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand-logo">
+      <img src="FullLogo.jpg" alt="Rent Mate Logo">
+      <h2 style="font-size: 18px; font-weight: 700;">Rent Mate</h2>
+    </div>
+    
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="home.html"><span class="nav-icon">🏠</span> Home Dashboard</a>
+      </li>
+      <li class="nav-item active">
+        <a href="rental_room.html"><span class="nav-icon">🛏️</span> Rental Room</a>
+      </li>
+      <li class="nav-item">
+        <a href="furniture.html"><span class="nav-icon">🛋️</span> Furniture</a>
+      </li>
+      <li class="nav-item">
+        <a href="sports_arena.html"><span class="nav-icon">🎾</span> Sports Arena</a>
+      </li>
+      <li class="nav-item">
+        <a href="event_decor.html"><span class="nav-icon">✨</span> Event Decor</a>
+      </li>
+      <li class="nav-item">
+        <a href="party_lawn.html"><span class="nav-icon">🌿</span> Party Lawn</a>
+      </li>
+      <li class="nav-item">
+        <a href="DJ.html"><span class="nav-icon">🎧</span> Call DJ</a>
+      </li>
+      <li class="nav-item">
+        <a href="others.html"><span class="nav-icon">📦</span> Others</a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- CENTER CONSOLE -->
+  <main class="main-content">
+    
+    <!-- Top Header & Actions -->
+    <header class="top-header">
+      <div class="welcome-text">
+        <h1>Available Rental Rooms</h1>
+        <p>Find your perfect living space near your workplace or university.</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="btn-action btn-help" onclick="openHelpDesk()">
+          <span>💬</span> Help Desk
+        </button>
+        <button class="btn-action" id="theme-toggle">
+          <span id="theme-icon">☀️</span> Light Mode
+        </button>
+      </div>
+    </header>
+
+    <!-- Smart Filtering System -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>Search Area</label>
+        <input type="text" id="filterArea" class="filter-input" placeholder="e.g. Alkapuri, London...">
+      </div>
+      
+      <div class="filter-group">
+        <label>Price Range</label>
+        <select id="filterPrice" class="filter-input">
+          <option value="all">All Prices</option>
+          <option value="low">₹5,000 - ₹15,000 (Budget)</option>
+          <option value="mid">₹15,000 - ₹30,000 (Standard)</option>
+          <option value="high">₹30,000 - ₹50,000+ (Luxury)</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Distance from Work/Uni</label>
+        <select id="filterDistance" class="filter-input">
+          <option value="100">Any Distance</option>
+          <option value="2">Less than 2 km</option>
+          <option value="5">Less than 5 km</option>
+          <option value="10">Less than 10 km</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Guest Reviews</label>
+        <select id="filterRating" class="filter-input">
+          <option value="0">All Ratings</option>
+          <option value="4.5">Excellent (4.5 & up)</option>
+          <option value="4.0">Very Good (4.0 & up)</option>
+          <option value="3.0">Good (3.0 & up)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Dynamic Grid for Rooms -->
+    <div class="grid-container" id="roomsGrid">
+      <!-- Cards will be injected here via JavaScript -->
+    </div>
+
+  </main>
+
+  <!-- Help Desk Modal -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="help-box">
+      <h3>24/7 Support Desk</h3>
+      <p>Need help finding a room? Leave us a message.</p>
+      <input type="text" class="filter-input" placeholder="Your Name">
+      <textarea class="filter-input" placeholder="How can we help you?"></textarea>
+      <div style="display:flex; gap:12px; margin-top: 12px;">
+        <button class="btn-action" style="flex:1; justify-content:center;" onclick="closeHelpDesk()">Cancel</button>
+        <button class="btn-book" style="flex:1;" onclick="closeHelpDesk()">Send Message</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client-Side Engine (Filters, Theme, Data) -->
+  <script>
+    // 1. Theme Toggle Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (currentTheme === 'light') {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggleBtn.innerHTML = '☀️ Light Mode';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeToggleBtn.innerHTML = '🌙 Dark Mode';
+      }
+    });
+
+    // 2. Help Desk Logic
+    const helpModal = document.getElementById('helpModal');
+    function openHelpDesk() { helpModal.classList.add('active'); }
+    function closeHelpDesk() { helpModal.classList.remove('active'); }
+
+    // 3. Rental Rooms Data (24 Items with Prices ₹5,000 to ₹50,000)
+    const roomsData = [
+      { id: 1, type: 'Student PG', title: 'Fatehgunj Tech Hub PG', area: 'Fatehgunj, Vadodara', price: 6500, rating: 4.1, reviews: 89, distance: 1.2, img: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=500&q=80' },
+      { id: 2, type: 'Studio', title: 'Central London Compact Studio', area: 'Central London, UK', price: 48000, rating: 4.8, reviews: 210, distance: 0.5, img: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&q=80' },
+      { id: 3, type: '1 BHK', title: 'Alkapuri Premium Suite', area: 'Alkapuri, Vadodara', price: 18000, rating: 4.6, reviews: 145, distance: 3.5, img: 'house 1BHK.jpg' },
+      { id: 4, type: 'Shared Flat', title: 'Brooklyn Tech Loft', area: 'Brooklyn, New York', price: 42000, rating: 4.9, reviews: 320, distance: 4.2, img: 'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=500&q=80' },
+      { id: 5, type: 'Shared Room', title: 'Waghodia Road Boys Hostel', area: 'Waghodia, Vadodara', price: 5000, rating: 3.8, reviews: 60, distance: 8.0, img: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=500&q=80' },
+      { id: 6, type: 'Luxury Villa', title: 'Manhattan Skyline Penthouse', area: 'Manhattan, New York', price: 50000, rating: 5.0, reviews: 88, distance: 1.0, img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500&q=80' },
+      { id: 7, type: '2 BHK', title: 'Gotri Family Apartment', area: 'Gotri, Vadodara', price: 22000, rating: 4.4, reviews: 75, distance: 5.5, img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&q=80' },
+      { id: 8, type: 'Studio', title: 'Camden Creative Space', area: 'Camden, London', price: 38000, rating: 4.7, reviews: 190, distance: 2.8, img: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=500&q=80' },
+      { id: 9, type: '1 BHK', title: 'Akota Minimalist Flat', area: 'Akota, Vadodara', price: 15000, rating: 4.2, reviews: 110, distance: 2.0, img: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&q=80' },
+      { id: 10, type: 'PG', title: 'Sayajigunj Executive PG', area: 'Sayajigunj, Vadodara', price: 8500, rating: 4.0, reviews: 45, distance: 1.8, img: 'house 1BHK.jpg' },
+      { id: 11, type: '1 BHK', title: 'Queens Cozy Retreat', area: 'Queens, New York', price: 32000, rating: 4.5, reviews: 150, distance: 7.5, img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&q=80' },
+      { id: 12, type: '2 BHK', title: 'Karelibaug Parkview', area: 'Karelibaug, Vadodara', price: 19000, rating: 4.3, reviews: 80, distance: 4.5, img: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=500&q=80' },
+      { id: 13, type: 'Shared Flat', title: 'Shoreditch Artist Co-op', area: 'Shoreditch, London', price: 28000, rating: 4.8, reviews: 220, distance: 3.2, img: 'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=500&q=80' },
+      { id: 14, type: 'PG', title: 'Nizampura Girls Hostel', area: 'Nizampura, Vadodara', price: 7000, rating: 4.1, reviews: 95, distance: 2.5, img: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=500&q=80' },
+      { id: 15, type: 'Studio', title: 'Chelsea Designer Studio', area: 'Chelsea, New York', price: 46000, rating: 4.9, reviews: 185, distance: 1.5, img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500&q=80' },
+      { id: 16, type: '1 BHK', title: 'Sama Savli Road Flat', area: 'Sama, Vadodara', price: 14000, rating: 4.2, reviews: 50, distance: 6.0, img: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&q=80' },
+      { id: 17, type: '2 BHK', title: 'Greenwich Thames View', area: 'Greenwich, London', price: 41000, rating: 4.6, reviews: 130, distance: 8.5, img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&q=80' },
+      { id: 18, type: 'Shared Room', title: 'Vasna Bhayli Budget Room', area: 'Vasna, Vadodara', price: 5500, rating: 3.9, reviews: 40, distance: 9.0, img: 'house 1BHK.jpg' },
+      { id: 19, type: 'Studio', title: 'Soho Loft Space', area: 'Soho, London', price: 49000, rating: 5.0, reviews: 310, distance: 0.8, img: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=500&q=80' },
+      { id: 20, type: '1 BHK', title: 'Makarpura Industrial Zone', area: 'Makarpura, Vadodara', price: 11000, rating: 3.7, reviews: 25, distance: 11.0, img: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=500&q=80' },
+      { id: 21, type: 'PG', title: 'Harlem Student Co-living', area: 'Harlem, New York', price: 21000, rating: 4.3, reviews: 105, distance: 6.2, img: 'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=500&q=80' },
+      { id: 22, type: '3 BHK', title: 'Manjalpur Family Home', area: 'Manjalpur, Vadodara', price: 28000, rating: 4.5, reviews: 85, distance: 7.0, img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=500&q=80' },
+      { id: 23, type: 'Studio', title: 'Notting Hill Cozy Pad', area: 'Notting Hill, London', price: 35000, rating: 4.7, reviews: 175, distance: 4.0, img: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&q=80' },
+      { id: 24, type: '2 BHK', title: 'Subhanpura Corner Flat', area: 'Subhanpura, Vadodara', price: 17500, rating: 4.4, reviews: 65, distance: 3.8, img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&q=80' }
+    ];
+
+    // 4. Filtering & Rendering Engine
+    const roomsGrid = document.getElementById('roomsGrid');
+    const filterArea = document.getElementById('filterArea');
+    const filterPrice = document.getElementById('filterPrice');
+    const filterDistance = document.getElementById('filterDistance');
+    const filterRating = document.getElementById('filterRating');
+
+    function renderRooms(rooms) {
+      roomsGrid.innerHTML = '';
+      
+      if (rooms.length === 0) {
+        roomsGrid.innerHTML = '<p style="color:var(--text-muted); grid-column:1/-1; text-align:center;">No rooms found matching your criteria.</p>';
+        return;
+      }
+
+      rooms.forEach(room => {
+        const card = document.createElement('div');
+        card.className = 'listing-card';
+        card.innerHTML = `
+          <img src="${room.img}" alt="${room.title}" class="card-image">
+          <div class="card-meta">
+            <span class="card-category">${room.type}</span>
+            <span class="card-distance">📍 ${room.distance} km away</span>
+          </div>
+          <h3 class="card-title" title="${room.title}">${room.title}</h3>
+          <p class="card-area">${room.area}</p>
+          <div class="card-rating">
+            <span class="star">★</span> <strong style="color:var(--text-main)">${room.rating}</strong> (${room.reviews} Reviews)
+          </div>
+          <div class="card-footer">
+            <div class="price">₹${room.price.toLocaleString('en-IN')} <span>/ month</span></div>
+            <!-- All buttons route to payment.html -->
+            <a href="payment.html" class="btn-book">Book Now</a>
+          </div>
+        `;
+        roomsGrid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const areaVal = filterArea.value.toLowerCase();
+      const priceVal = filterPrice.value;
+      const distVal = parseFloat(filterDistance.value);
+      const ratingVal = parseFloat(filterRating.value);
+
+      const filtered = roomsData.filter(room => {
+        // Area Match
+        const matchArea = room.area.toLowerCase().includes(areaVal) || room.title.toLowerCase().includes(areaVal);
+        
+        // Distance & Rating Match
+        const matchDist = room.distance <= distVal;
+        const matchRating = room.rating >= ratingVal;
+        
+        // Price Match
+        let matchPrice = true;
+        if (priceVal === 'low') matchPrice = room.price <= 15000;
+        else if (priceVal === 'mid') matchPrice = room.price > 15000 && room.price <= 30000;
+        else if (priceVal === 'high') matchPrice = room.price > 30000;
+
+        return matchArea && matchDist && matchRating && matchPrice;
+      });
+
+      renderRooms(filtered);
+    }
+
+    // Attach Event Listeners to inputs
+    filterArea.addEventListener('input', applyFilters);
+    filterPrice.addEventListener('change', applyFilters);
+    filterDistance.addEventListener('change', applyFilters);
+    filterRating.addEventListener('change', applyFilters);
+
+    // Initial Load
+    renderRooms(roomsData);
+  </script>
+
+</body>
+</html>

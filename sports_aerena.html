@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent Mate | Sports Arena Booking</title>
+  <style>
+    /* -------------------------------------------------------------
+       1. BRAND IDENTITY & THEME VARIABLES
+    ------------------------------------------------------------- */
+    :root {
+      /* Dark Theme (Default) */
+      --bg-base: #090909;
+      --bg-surface: rgba(18, 18, 18, 0.75);
+      --bg-surface-solid: #121212;
+      
+      --primary-orange: #FF8C42;
+      --secondary-gold: #FFD166;
+      --accent-teal: #00D4B3;
+      --text-main: #FFFFFF;
+      --text-muted: #A0A0A0;
+      
+      --border-glass: rgba(255, 140, 66, 0.2);
+      --glass-blur: blur(20px);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      
+      --sidebar-width: 280px;
+    }
+
+    /* Light Theme Override */
+    [data-theme="light"] {
+      --bg-base: #F8FAFC;
+      --bg-surface: rgba(255, 255, 255, 0.85);
+      --bg-surface-solid: #FFFFFF;
+      
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      
+      --border-glass: rgba(255, 140, 66, 0.3);
+      --glass-shadow: 0 8px 32px 0 rgba(148, 163, 184, 0.15);
+    }
+
+    /* -------------------------------------------------------------
+       2. RESET & BASE LAYOUT
+    ------------------------------------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    }
+
+    body {
+      background: radial-gradient(circle at top right, rgba(255,140,66,0.05), transparent 40%),
+                  radial-gradient(circle at bottom left, rgba(0,212,179,0.05), transparent 40%);
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* -------------------------------------------------------------
+       3. LEFT SIDEBAR NAVIGATION
+    ------------------------------------------------------------- */
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: var(--bg-surface-solid);
+      border-right: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .brand-logo {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo img { height: 40px; border-radius: 8px; }
+
+    .nav-menu {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      list-style: none;
+      overflow-y: auto;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+
+    .nav-item a:hover {
+      background: rgba(255, 140, 66, 0.1);
+      color: var(--primary-orange);
+    }
+
+    .nav-item.active a {
+      background: linear-gradient(135deg, rgba(255,209,102,0.1), rgba(255,140,66,0.1));
+      color: var(--secondary-gold);
+      border-left: 3px solid var(--secondary-gold);
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .btn-back {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: rgba(255, 90, 90, 0.1);
+      color: #FF5A5A;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 90, 90, 0.2);
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 90, 90, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* -------------------------------------------------------------
+       4. CENTER CONSOLE & FILTERS
+    ------------------------------------------------------------- */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      width: calc(100% - var(--sidebar-width));
+      padding: 40px;
+    }
+
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .welcome-text h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+    .welcome-text p { color: var(--text-muted); font-size: 14px; }
+
+    .header-actions { display: flex; gap: 12px; }
+
+    .btn-action {
+      background: var(--bg-surface-solid);
+      border: 1px solid var(--border-glass);
+      padding: 10px 18px;
+      border-radius: 30px;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .btn-action:hover { border-color: var(--primary-orange); }
+    .btn-help { border-color: var(--accent-teal); color: var(--accent-teal); }
+
+    /* Filter Bar */
+    .filter-bar {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 32px;
+      box-shadow: var(--glass-shadow);
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .filter-group label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--primary-orange);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .filter-input {
+      background: rgba(128, 128, 128, 0.1);
+      border: 1px solid var(--border-glass);
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+
+    .filter-input:focus { border-color: var(--secondary-gold); }
+    .filter-input option { background: var(--bg-surface-solid); color: var(--text-main); }
+
+    /* -------------------------------------------------------------
+       5. GRID & CARDS
+    ------------------------------------------------------------- */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 24px;
+    }
+
+    .listing-card {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .listing-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(255, 140, 66, 0.15);
+      border-color: var(--primary-orange);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 160px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      object-fit: cover;
+      border: 1px solid var(--border-glass);
+      background: #1A1A1A;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-category {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-teal);
+      font-weight: 700;
+      background: rgba(0, 212, 179, 0.1);
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    .card-distance {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .card-area {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .star { color: var(--secondary-gold); }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .price { font-size: 16px; font-weight: 800; color: var(--text-main); }
+    .price span { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+
+    .btn-book {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--secondary-gold), #F5B041);
+      color: #090909;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .btn-book:hover { box-shadow: 0 4px 15px rgba(255, 209, 102, 0.4); transform: scale(1.02); }
+
+    /* -------------------------------------------------------------
+       6. HELP DESK MODAL
+    ------------------------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    
+    .help-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%; max-width: 400px;
+      text-align: center;
+      transform: translateY(20px); transition: all 0.3s ease;
+    }
+    .modal-overlay.active .help-box { transform: translateY(0); }
+    .help-box h3 { margin-bottom: 12px; font-size: 22px; }
+    .help-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+    .help-box input, .help-box textarea { width: 100%; margin-bottom: 12px; }
+    .help-box textarea { resize: none; height: 100px; }
+
+    /* -------------------------------------------------------------
+       7. RESPONSIVE ENGINE
+    ------------------------------------------------------------- */
+    @media (max-width: 1024px) {
+      .sidebar { width: 80px; }
+      .brand-logo h2, .nav-item .nav-text, .btn-back .nav-text { display: none; }
+      .brand-logo { justify-content: center; padding: 20px 0; }
+      .nav-item a, .btn-back { justify-content: center; padding: 14px 0; }
+      .main-content { margin-left: 80px; width: calc(100% - 80px); padding: 24px; }
+    }
+    @media (max-width: 768px) {
+      .top-header { flex-direction: column; gap: 16px; }
+      .filter-group { min-width: 100%; }
+      .grid-container { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .sidebar { width: 60px; }
+      .main-content { margin-left: 60px; width: calc(100% - 60px); padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand-logo">
+      <img src="FullLogo.jpg" alt="Rent Mate Logo">
+      <h2 style="font-size: 18px; font-weight: 700;">Rent Mate</h2>
+    </div>
+    
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="home.html"><span class="nav-icon">🏠</span> <span class="nav-text">Home Dashboard</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="rental_room.html"><span class="nav-icon">🛏️</span> <span class="nav-text">Rental Room</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="furniture.html"><span class="nav-icon">🛋️</span> <span class="nav-text">Furniture</span></a>
+      </li>
+      <li class="nav-item active">
+        <a href="sports_arena.html"><span class="nav-icon">🎾</span> <span class="nav-text">Sports Arena</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="event_decor.html"><span class="nav-icon">✨</span> <span class="nav-text">Event Decor</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="party_lawn.html"><span class="nav-icon">🌿</span> <span class="nav-text">Party Lawn</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="DJ.html"><span class="nav-icon">🎧</span> <span class="nav-text">Call DJ</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="others.html"><span class="nav-icon">📦</span> <span class="nav-text">Others</span></a>
+      </li>
+    </ul>
+
+    <!-- Bottom Left Back Button -->
+    <div class="sidebar-bottom">
+      <a href="home.html" class="btn-back">
+        <span class="nav-icon">⬅️</span> 
+        <span class="nav-text">Back to Home</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- CENTER CONSOLE -->
+  <main class="main-content">
+    
+    <!-- Top Header & Actions -->
+    <header class="top-header">
+      <div class="welcome-text">
+        <h1>Sports Arena Booking</h1>
+        <p>Book premium turf, courts, and pools instantly.</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="btn-action btn-help" onclick="openHelpDesk()">
+          <span>💬</span> Help Desk
+        </button>
+        <button class="btn-action" id="theme-toggle">
+          <span id="theme-icon">☀️</span> Light Mode
+        </button>
+      </div>
+    </header>
+
+    <!-- Smart Filtering System -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>Search Area / Name</label>
+        <input type="text" id="filterSearch" class="filter-input" placeholder="e.g. Gotri, Cricket...">
+      </div>
+      
+      <div class="filter-group">
+        <label>Sport Category</label>
+        <select id="filterSport" class="filter-input">
+          <option value="all">All Sports</option>
+          <option value="cricket">Cricket</option>
+          <option value="football">Football</option>
+          <option value="basketball">Basketball</option>
+          <option value="tennis">Tennis</option>
+          <option value="swimming">Swimming</option>
+          <option value="bowling">Bowling</option>
+          <option value="skating">Skating</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Price Range / Hour</label>
+        <select id="filterPrice" class="filter-input">
+          <option value="all">All Prices</option>
+          <option value="budget">Under ₹1,000</option>
+          <option value="mid">₹1,000 - ₹2,500</option>
+          <option value="premium">Above ₹2,500</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Distance</label>
+        <select id="filterDistance" class="filter-input">
+          <option value="100">Any Distance</option>
+          <option value="2">Less than 2 km</option>
+          <option value="5">Less than 5 km</option>
+          <option value="10">Less than 10 km</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Guest Reviews</label>
+        <select id="filterRating" class="filter-input">
+          <option value="0">All Ratings</option>
+          <option value="4.5">Excellent (4.5 & up)</option>
+          <option value="4.0">Very Good (4.0 & up)</option>
+          <option value="3.0">Good (3.0 & up)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Dynamic Grid -->
+    <div class="grid-container" id="arenaGrid">
+      <!-- Cards will be injected here via JavaScript -->
+    </div>
+
+  </main>
+
+  <!-- Help Desk Modal -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="help-box">
+      <h3>24/7 Support Desk</h3>
+      <p>Need help finding a court or turf? We're here.</p>
+      <input type="text" class="filter-input" placeholder="Your Name">
+      <textarea class="filter-input" placeholder="How can we help you?"></textarea>
+      <div style="display:flex; gap:12px; margin-top: 12px;">
+        <button class="btn-action" style="flex:1; justify-content:center;" onclick="closeHelpDesk()">Cancel</button>
+        <button class="btn-book" style="flex:1;" onclick="closeHelpDesk()">Send Message</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client-Side Engine (Filters, Theme, Data) -->
+  <script>
+    // 1. Theme Toggle Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (currentTheme === 'light') {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggleBtn.innerHTML = '☀️ Light Mode';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeToggleBtn.innerHTML = '🌙 Dark Mode';
+      }
+    });
+
+    // 2. Help Desk Logic
+    const helpModal = document.getElementById('helpModal');
+    function openHelpDesk() { helpModal.classList.add('active'); }
+    function closeHelpDesk() { helpModal.classList.remove('active'); }
+
+    // 3. Verified Image Maps to prevent black spots
+    const imgMap = {
+      'Cricket': 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=500&q=80',
+      'Football': 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=500&q=80',
+      'Basketball': 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=500&q=80',
+      'Tennis': 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=500&q=80',
+      'Swimming': 'swimming.jpg',
+      'Bowling': 'bolling.jpg',
+      'Skating': 'https://images.unsplash.com/photo-1520045892732-304bc3ac5d8e?w=500&q=80'
+    };
+
+    // 4. Arena Inventory (55 Items)
+    const arenaData = [
+      { id: 1, sport: 'Cricket', title: 'Gotri Legends Turf', area: 'Gotri, Vadodara', price: 1200, rating: 4.8, distance: 2.5 },
+      { id: 2, sport: 'Football', title: 'Alkapuri FC Ground', area: 'Alkapuri, Vadodara', price: 1500, rating: 4.6, distance: 3.1 },
+      { id: 3, sport: 'Basketball', title: 'Hoops Indoor Arena', area: 'Karelibaug, Vadodara', price: 800, rating: 4.5, distance: 5.0 },
+      { id: 4, sport: 'Tennis', title: 'Elite Clay Court', area: 'Manjalpur, Vadodara', price: 600, rating: 4.7, distance: 6.2 },
+      { id: 5, sport: 'Swimming', title: 'Olympia Olympic Pool', area: 'Fatehgunj, Vadodara', price: 300, rating: 4.9, distance: 1.8 },
+      { id: 6, sport: 'Bowling', title: 'Strike Zone Bowling Alley', area: 'Sama, Vadodara', price: 2500, rating: 4.4, distance: 4.5 },
+      { id: 7, sport: 'Skating', title: 'Wheels Roller Rink', area: 'Akota, Vadodara', price: 400, rating: 4.2, distance: 2.1 },
+      { id: 8, sport: 'Cricket', title: 'Vasna Night Turf', area: 'Vasna, Vadodara', price: 1400, rating: 4.9, distance: 7.0 },
+      { id: 9, sport: 'Football', title: 'Waghodia Road Stadium', area: 'Waghodia, Vadodara', price: 1100, rating: 4.1, distance: 8.5 },
+      { id: 10, sport: 'Basketball', title: 'Nizampura Court 1', area: 'Nizampura, Vadodara', price: 700, rating: 4.3, distance: 3.0 },
+      
+      { id: 11, sport: 'Tennis', title: 'Gotri Lawn Tennis Club', area: 'Gotri, Vadodara', price: 900, rating: 4.8, distance: 2.8 },
+      { id: 12, sport: 'Swimming', title: 'Alkapuri Sports Club Pool', area: 'Alkapuri, Vadodara', price: 500, rating: 4.6, distance: 3.5 },
+      { id: 13, sport: 'Bowling', title: 'Inorbit Neon Bowling', area: 'Gorwa, Vadodara', price: 3000, rating: 4.7, distance: 4.2 },
+      { id: 14, sport: 'Skating', title: 'Sayajibaug Skate Park', area: 'Sayajigunj, Vadodara', price: 200, rating: 4.5, distance: 1.5 },
+      { id: 15, sport: 'Cricket', title: 'Reliance Premium Pitch', area: 'Karelibaug, Vadodara', price: 2000, rating: 5.0, distance: 5.5 },
+      { id: 16, sport: 'Football', title: 'Manjalpur Astro Turf', area: 'Manjalpur, Vadodara', price: 1600, rating: 4.4, distance: 6.8 },
+      { id: 17, sport: 'Basketball', title: 'Fatehgunj Street Hoops', area: 'Fatehgunj, Vadodara', price: 500, rating: 4.1, distance: 1.9 },
+      { id: 18, sport: 'Tennis', title: 'Sama Indoor Tennis', area: 'Sama, Vadodara', price: 1200, rating: 4.9, distance: 4.8 },
+      { id: 19, sport: 'Swimming', title: 'Akota Heated Pool', area: 'Akota, Vadodara', price: 600, rating: 4.7, distance: 2.4 },
+      { id: 20, sport: 'Bowling', title: 'Pin Crashers Lounge', area: 'Vasna, Vadodara', price: 2200, rating: 4.3, distance: 7.5 },
+
+      { id: 21, sport: 'Skating', title: 'Waghodia Ice Rink', area: 'Waghodia, Vadodara', price: 800, rating: 4.6, distance: 8.8 },
+      { id: 22, sport: 'Cricket', title: 'Nizampura Practice Nets', area: 'Nizampura, Vadodara', price: 500, rating: 4.0, distance: 3.2 },
+      { id: 23, sport: 'Football', title: 'Gotri 5v5 Arena', area: 'Gotri, Vadodara', price: 1300, rating: 4.5, distance: 2.9 },
+      { id: 24, sport: 'Basketball', title: 'Alkapuri Elite Court', area: 'Alkapuri, Vadodara', price: 1000, rating: 4.8, distance: 3.8 },
+      { id: 25, sport: 'Tennis', title: 'Karelibaug Hard Court', area: 'Karelibaug, Vadodara', price: 700, rating: 4.4, distance: 5.2 },
+      { id: 26, sport: 'Swimming', title: 'Manjalpur Dive Center', area: 'Manjalpur, Vadodara', price: 400, rating: 4.2, distance: 6.5 },
+      { id: 27, sport: 'Bowling', title: 'Fatehgunj Strike Club', area: 'Fatehgunj, Vadodara', price: 1800, rating: 4.1, distance: 1.7 },
+      { id: 28, sport: 'Skating', title: 'Sama Roller Derby', area: 'Sama, Vadodara', price: 300, rating: 4.5, distance: 4.6 },
+      { id: 29, sport: 'Cricket', title: 'Akota Day/Night Stadium', area: 'Akota, Vadodara', price: 2500, rating: 4.9, distance: 2.2 },
+      { id: 30, sport: 'Football', title: 'Vasna Pro Turf', area: 'Vasna, Vadodara', price: 1800, rating: 4.7, distance: 7.2 },
+
+      { id: 31, sport: 'Basketball', title: 'Waghodia Community Hoops', area: 'Waghodia, Vadodara', price: 400, rating: 3.9, distance: 8.4 },
+      { id: 32, sport: 'Tennis', title: 'Nizampura Synthetic Court', area: 'Nizampura, Vadodara', price: 800, rating: 4.6, distance: 3.5 },
+      { id: 33, sport: 'Swimming', title: 'Gotri Infinity Pool', area: 'Gotri, Vadodara', price: 1000, rating: 5.0, distance: 2.6 },
+      { id: 34, sport: 'Bowling', title: 'Alkapuri Pro Lanes', area: 'Alkapuri, Vadodara', price: 2800, rating: 4.8, distance: 3.6 },
+      { id: 35, sport: 'Skating', title: 'Karelibaug Free Skate', area: 'Karelibaug, Vadodara', price: 250, rating: 4.3, distance: 5.1 },
+      { id: 36, sport: 'Cricket', title: 'Manjalpur Mini Pitch', area: 'Manjalpur, Vadodara', price: 900, rating: 4.2, distance: 6.7 },
+      { id: 37, sport: 'Football', title: 'Fatehgunj Grass Ground', area: 'Fatehgunj, Vadodara', price: 1200, rating: 4.5, distance: 2.0 },
+      { id: 38, sport: 'Basketball', title: 'Sama Indoor Stadium', area: 'Sama, Vadodara', price: 1500, rating: 4.9, distance: 4.9 },
+      { id: 39, sport: 'Tennis', title: 'Akota Club Courts', area: 'Akota, Vadodara', price: 1100, rating: 4.7, distance: 2.5 },
+      { id: 40, sport: 'Swimming', title: 'Vasna Sports Complex Pool', area: 'Vasna, Vadodara', price: 350, rating: 4.4, distance: 7.8 },
+
+      { id: 41, sport: 'Bowling', title: 'Waghodia Family Alley', area: 'Waghodia, Vadodara', price: 1500, rating: 4.0, distance: 8.9 },
+      { id: 42, sport: 'Skating', title: 'Nizampura Speed Track', area: 'Nizampura, Vadodara', price: 500, rating: 4.6, distance: 3.7 },
+      { id: 43, sport: 'Cricket', title: 'Gotri Pro Box Cricket', area: 'Gotri, Vadodara', price: 1300, rating: 4.8, distance: 2.7 },
+      { id: 44, sport: 'Football', title: 'Alkapuri Kickoff Arena', area: 'Alkapuri, Vadodara', price: 1700, rating: 4.9, distance: 3.9 },
+      { id: 45, sport: 'Basketball', title: 'Karelibaug YMCA Court', area: 'Karelibaug, Vadodara', price: 600, rating: 4.3, distance: 5.3 },
+      { id: 46, sport: 'Tennis', title: 'Manjalpur Grass Court', area: 'Manjalpur, Vadodara', price: 1400, rating: 4.5, distance: 6.9 },
+      { id: 47, sport: 'Swimming', title: 'Fatehgunj Training Pool', area: 'Fatehgunj, Vadodara', price: 450, rating: 4.2, distance: 2.1 },
+      { id: 48, sport: 'Bowling', title: 'Sama Midnight Bowl', area: 'Sama, Vadodara', price: 3200, rating: 4.7, distance: 4.7 },
+      { id: 49, sport: 'Skating', title: 'Akota Concrete Park', area: 'Akota, Vadodara', price: 350, rating: 4.4, distance: 2.6 },
+      { id: 50, sport: 'Cricket', title: 'Vasna Weekend Turf', area: 'Vasna, Vadodara', price: 1600, rating: 4.6, distance: 7.4 },
+
+      { id: 51, sport: 'Football', title: 'Waghodia 7v7 Ground', area: 'Waghodia, Vadodara', price: 2000, rating: 4.8, distance: 8.7 },
+      { id: 52, sport: 'Basketball', title: 'Nizampura Night Court', area: 'Nizampura, Vadodara', price: 900, rating: 4.5, distance: 3.9 },
+      { id: 53, sport: 'Tennis', title: 'Gotri Rooftop Tennis', area: 'Gotri, Vadodara', price: 1800, rating: 5.0, distance: 3.0 },
+      { id: 54, sport: 'Swimming', title: 'Alkapuri Kids Pool', area: 'Alkapuri, Vadodara', price: 250, rating: 4.1, distance: 3.7 },
+      { id: 55, sport: 'Bowling', title: 'Karelibaug Strike Zone', area: 'Karelibaug, Vadodara', price: 2600, rating: 4.6, distance: 5.4 }
+    ];
+
+    // 5. Filtering & Rendering Engine
+    const arenaGrid = document.getElementById('arenaGrid');
+    const filterSearch = document.getElementById('filterSearch');
+    const filterSport = document.getElementById('filterSport');
+    const filterPrice = document.getElementById('filterPrice');
+    const filterDistance = document.getElementById('filterDistance');
+    const filterRating = document.getElementById('filterRating');
+
+    function renderItems(items) {
+      arenaGrid.innerHTML = '';
+      
+      if (items.length === 0) {
+        arenaGrid.innerHTML = '<p style="color:var(--text-muted); grid-column:1/-1; text-align:center;">No arenas found matching your criteria.</p>';
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'listing-card';
+        
+        // Grab the correct image safely from our map
+        const imgUrl = imgMap[item.sport];
+
+        card.innerHTML = `
+          <img src="${imgUrl}" alt="${item.sport}" class="card-image">
+          <div class="card-meta">
+            <span class="card-category">${item.sport}</span>
+            <span class="card-distance">📍 ${item.distance} km</span>
+          </div>
+          <h3 class="card-title" title="${item.title}">${item.title}</h3>
+          <p class="card-area">${item.area}</p>
+          <div class="card-rating">
+            <span class="star">★</span> <strong style="color:var(--text-main)">${item.rating}</strong>
+          </div>
+          <div class="card-footer">
+            <div class="price">₹${item.price.toLocaleString('en-IN')} <span>/ hour</span></div>
+            <!-- Links directly to payment3.html -->
+            <a href="payment3.html" class="btn-book">Book Now</a>
+          </div>
+        `;
+        arenaGrid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const searchVal = filterSearch.value.toLowerCase();
+      const sportVal = filterSport.value.toLowerCase();
+      const priceVal = filterPrice.value;
+      const distVal = parseFloat(filterDistance.value);
+      const ratingVal = parseFloat(filterRating.value);
+
+      const filtered = arenaData.filter(item => {
+        // Search & Sport Match
+        const matchSearch = item.title.toLowerCase().includes(searchVal) || item.area.toLowerCase().includes(searchVal);
+        const matchSport = sportVal === 'all' || item.sport.toLowerCase() === sportVal;
+        
+        // Distance & Rating Match
+        const matchDist = item.distance <= distVal;
+        const matchRating = item.rating >= ratingVal;
+        
+        // Price Match
+        let matchPrice = true;
+        if (priceVal === 'budget') matchPrice = item.price <= 1000;
+        else if (priceVal === 'mid') matchPrice = item.price > 1000 && item.price <= 2500;
+        else if (priceVal === 'premium') matchPrice = item.price > 2500;
+
+        return matchSearch && matchSport && matchDist && matchRating && matchPrice;
+      });
+
+      renderItems(filtered);
+    }
+
+    // Attach Event Listeners to inputs
+    filterSearch.addEventListener('input', applyFilters);
+    filterSport.addEventListener('change', applyFilters);
+    filterPrice.addEventListener('change', applyFilters);
+    filterDistance.addEventListener('change', applyFilters);
+    filterRating.addEventListener('change', applyFilters);
+
+    // Initial Load
+    renderItems(arenaData);
+  </script>
+
+</body>
+</html>

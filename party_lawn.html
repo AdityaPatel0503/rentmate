@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent Mate | Party Lawn Booking</title>
+  <style>
+    /* -------------------------------------------------------------
+       1. BRAND IDENTITY & THEME VARIABLES
+    ------------------------------------------------------------- */
+    :root {
+      /* Dark Theme (Default) */
+      --bg-base: #090909;
+      --bg-surface: rgba(18, 18, 18, 0.75);
+      --bg-surface-solid: #121212;
+      
+      --primary-orange: #FF8C42;
+      --secondary-gold: #FFD166;
+      --accent-teal: #00D4B3;
+      --text-main: #FFFFFF;
+      --text-muted: #A0A0A0;
+      
+      --border-glass: rgba(255, 140, 66, 0.2);
+      --glass-blur: blur(20px);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      
+      --sidebar-width: 280px;
+    }
+
+    /* Light Theme Override */
+    [data-theme="light"] {
+      --bg-base: #F8FAFC;
+      --bg-surface: rgba(255, 255, 255, 0.85);
+      --bg-surface-solid: #FFFFFF;
+      
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      
+      --border-glass: rgba(255, 140, 66, 0.3);
+      --glass-shadow: 0 8px 32px 0 rgba(148, 163, 184, 0.15);
+    }
+
+    /* -------------------------------------------------------------
+       2. RESET & BASE LAYOUT
+    ------------------------------------------------------------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+    }
+
+    body {
+      background: radial-gradient(circle at top right, rgba(255,140,66,0.05), transparent 40%),
+                  radial-gradient(circle at bottom left, rgba(0,212,179,0.05), transparent 40%);
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* -------------------------------------------------------------
+       3. LEFT SIDEBAR NAVIGATION
+    ------------------------------------------------------------- */
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: var(--bg-surface-solid);
+      border-right: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .brand-logo {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo img { height: 40px; border-radius: 8px; }
+
+    .nav-menu {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      list-style: none;
+      overflow-y: auto;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+
+    .nav-item a:hover {
+      background: rgba(255, 140, 66, 0.1);
+      color: var(--primary-orange);
+    }
+
+    .nav-item.active a {
+      background: linear-gradient(135deg, rgba(255,209,102,0.1), rgba(255,140,66,0.1));
+      color: var(--secondary-gold);
+      border-left: 3px solid var(--secondary-gold);
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .btn-back {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: rgba(255, 90, 90, 0.1);
+      color: #FF5A5A;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 90, 90, 0.2);
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 90, 90, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* -------------------------------------------------------------
+       4. CENTER CONSOLE & FILTERS
+    ------------------------------------------------------------- */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      width: calc(100% - var(--sidebar-width));
+      padding: 40px;
+    }
+
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .welcome-text h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+    .welcome-text p { color: var(--text-muted); font-size: 14px; }
+
+    .header-actions { display: flex; gap: 12px; }
+
+    .btn-action {
+      background: var(--bg-surface-solid);
+      border: 1px solid var(--border-glass);
+      padding: 10px 18px;
+      border-radius: 30px;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .btn-action:hover { border-color: var(--primary-orange); }
+    .btn-help { border-color: var(--accent-teal); color: var(--accent-teal); }
+
+    /* Filter Bar */
+    .filter-bar {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 32px;
+      box-shadow: var(--glass-shadow);
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .filter-group label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--primary-orange);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .filter-input {
+      background: rgba(128, 128, 128, 0.1);
+      border: 1px solid var(--border-glass);
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+
+    .filter-input:focus { border-color: var(--secondary-gold); }
+    .filter-input option { background: var(--bg-surface-solid); color: var(--text-main); }
+
+    /* -------------------------------------------------------------
+       5. GRID & CARDS
+    ------------------------------------------------------------- */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .listing-card {
+      background: var(--bg-surface);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .listing-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(255, 140, 66, 0.15);
+      border-color: var(--primary-orange);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 180px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      object-fit: cover;
+      border: 1px solid var(--border-glass);
+      background: #1A1A1A;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-category {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-teal);
+      font-weight: 700;
+      background: rgba(0, 212, 179, 0.1);
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    .card-distance {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .card-area {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .star { color: var(--secondary-gold); }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-glass);
+    }
+
+    .price { font-size: 16px; font-weight: 800; color: var(--text-main); }
+    .price span { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+
+    .btn-book {
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--secondary-gold), #F5B041);
+      color: #090909;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+
+    .btn-book:hover { box-shadow: 0 4px 15px rgba(255, 209, 102, 0.4); transform: scale(1.02); }
+
+    /* -------------------------------------------------------------
+       6. HELP DESK MODAL
+    ------------------------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    
+    .help-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%; max-width: 400px;
+      text-align: center;
+      transform: translateY(20px); transition: all 0.3s ease;
+    }
+    .modal-overlay.active .help-box { transform: translateY(0); }
+    .help-box h3 { margin-bottom: 12px; font-size: 22px; }
+    .help-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+    .help-box input, .help-box textarea { width: 100%; margin-bottom: 12px; }
+    .help-box textarea { resize: none; height: 100px; }
+
+    /* -------------------------------------------------------------
+       7. RESPONSIVE ENGINE
+    ------------------------------------------------------------- */
+    @media (max-width: 1024px) {
+      .sidebar { width: 80px; }
+      .brand-logo h2, .nav-item .nav-text, .btn-back .nav-text { display: none; }
+      .brand-logo { justify-content: center; padding: 20px 0; }
+      .nav-item a, .btn-back { justify-content: center; padding: 14px 0; }
+      .main-content { margin-left: 80px; width: calc(100% - 80px); padding: 24px; }
+    }
+    @media (max-width: 768px) {
+      .top-header { flex-direction: column; gap: 16px; }
+      .filter-group { min-width: 100%; }
+      .grid-container { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .sidebar { width: 60px; }
+      .main-content { margin-left: 60px; width: calc(100% - 60px); padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand-logo">
+      <img src="FullLogo.jpg" alt="Rent Mate Logo">
+      <h2 style="font-size: 18px; font-weight: 700;">Rent Mate</h2>
+    </div>
+    
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="home.html"><span class="nav-icon">🏠</span> <span class="nav-text">Home Dashboard</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="rental_room.html"><span class="nav-icon">🛏️</span> <span class="nav-text">Rental Room</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="furniture.html"><span class="nav-icon">🛋️</span> <span class="nav-text">Furniture</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="sports_arena.html"><span class="nav-icon">🎾</span> <span class="nav-text">Sports Arena</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="event_decor.html"><span class="nav-icon">✨</span> <span class="nav-text">Event Decor</span></a>
+      </li>
+      <li class="nav-item active">
+        <a href="party_lawn.html"><span class="nav-icon">🌿</span> <span class="nav-text">Party Lawn</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="DJ.html"><span class="nav-icon">🎧</span> <span class="nav-text">Call DJ</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="others.html"><span class="nav-icon">📦</span> <span class="nav-text">Others</span></a>
+      </li>
+    </ul>
+
+    <!-- Bottom Left Back Button -->
+    <div class="sidebar-bottom">
+      <a href="home.html" class="btn-back">
+        <span class="nav-icon">⬅️</span> 
+        <span class="nav-text">Back to Home</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- CENTER CONSOLE -->
+  <main class="main-content">
+    
+    <!-- Top Header & Actions -->
+    <header class="top-header">
+      <div class="welcome-text">
+        <h1>Party Lawns & Venues</h1>
+        <p>Book premium spaces for weddings, parties, and corporate events.</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="btn-action btn-help" onclick="openHelpDesk()">
+          <span>💬</span> Help Desk
+        </button>
+        <button class="btn-action" id="theme-toggle">
+          <span id="theme-icon">☀️</span> Light Mode
+        </button>
+      </div>
+    </header>
+
+    <!-- Smart Filtering System -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>Search Area / Name</label>
+        <input type="text" id="filterSearch" class="filter-input" placeholder="e.g. Royal, Gotri...">
+      </div>
+      
+      <div class="filter-group">
+        <label>Event Type</label>
+        <select id="filterType" class="filter-input">
+          <option value="all">All Events</option>
+          <option value="marriage">Marriage / Wedding</option>
+          <option value="corporate">Corporate Meetup</option>
+          <option value="birthday">Birthday Party</option>
+          <option value="family">Family Get-together</option>
+          <option value="social">Social Meeting</option>
+          <option value="cultural">Cultural Show Space</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Price Range</label>
+        <select id="filterPrice" class="filter-input">
+          <option value="all">All Prices</option>
+          <option value="budget">Under ₹50,000</option>
+          <option value="mid">₹50,000 - ₹2,00,000</option>
+          <option value="premium">Above ₹2,00,000</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Distance</label>
+        <select id="filterDistance" class="filter-input">
+          <option value="100">Any Distance</option>
+          <option value="5">Less than 5 km</option>
+          <option value="10">Less than 10 km</option>
+          <option value="20">Less than 20 km</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Guest Reviews</label>
+        <select id="filterRating" class="filter-input">
+          <option value="0">All Ratings</option>
+          <option value="4.5">Excellent (4.5 & up)</option>
+          <option value="4.0">Very Good (4.0 & up)</option>
+          <option value="3.0">Good (3.0 & up)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Dynamic Grid -->
+    <div class="grid-container" id="lawnGrid">
+      <!-- Cards will be injected here via JavaScript -->
+    </div>
+
+  </main>
+
+  <!-- Help Desk Modal -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="help-box">
+      <h3>24/7 Event Support</h3>
+      <p>Need help finding the perfect venue? Contact our planners.</p>
+      <input type="text" class="filter-input" placeholder="Your Name">
+      <textarea class="filter-input" placeholder="How can we help you plan?"></textarea>
+      <div style="display:flex; gap:12px; margin-top: 12px;">
+        <button class="btn-action" style="flex:1; justify-content:center;" onclick="closeHelpDesk()">Cancel</button>
+        <button class="btn-book" style="flex:1;" onclick="closeHelpDesk()">Send Message</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client-Side Engine (Filters, Theme, Data) -->
+  <script>
+    // 1. Theme Toggle Logic
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (currentTheme === 'light') {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggleBtn.innerHTML = '☀️ Light Mode';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeToggleBtn.innerHTML = '🌙 Dark Mode';
+      }
+    });
+
+    // 2. Help Desk Logic
+    const helpModal = document.getElementById('helpModal');
+    function openHelpDesk() { helpModal.classList.add('active'); }
+    function closeHelpDesk() { helpModal.classList.remove('active'); }
+
+    // 3. Verified Image Maps for Event Types
+    const imgMap = {
+      'Marriage': 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=500&q=80',
+      'Corporate': 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=500&q=80',
+      'Birthday': 'birthday party lawn.jpg',
+      'Family': 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=500&q=80',
+      'Social': 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=500&q=80',
+      'Cultural': 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&q=80'
+    };
+
+    // 4. Lawn Inventory (54 Items)
+    const lawnData = [
+      { id: 1, type: 'Marriage', title: 'Royal Orchid Gardens', area: 'Gotri, Vadodara', price: 250000, rating: 4.8, distance: 4.5 },
+      { id: 2, type: 'Corporate', title: 'Skyline Business Lounge', area: 'Alkapuri, Vadodara', price: 80000, rating: 4.6, distance: 2.1 },
+      { id: 3, type: 'Birthday', title: 'Happy Times Party Plot', area: 'Karelibaug, Vadodara', price: 25000, rating: 4.5, distance: 6.0 },
+      { id: 4, type: 'Family', title: 'Greenwood Banquet', area: 'Manjalpur, Vadodara', price: 45000, rating: 4.7, distance: 8.2 },
+      { id: 5, type: 'Social', title: 'The Grand Retreat', area: 'Fatehgunj, Vadodara', price: 60000, rating: 4.4, distance: 3.8 },
+      { id: 6, type: 'Cultural', title: 'Sama Amphitheater', area: 'Sama, Vadodara', price: 120000, rating: 4.9, distance: 5.5 },
+      
+      { id: 7, type: 'Marriage', title: 'Laxmi Vilas Heritage Lawn', area: 'Sayajigunj, Vadodara', price: 450000, rating: 5.0, distance: 1.5 },
+      { id: 8, type: 'Corporate', title: 'Gotri Tech Meetup Hub', area: 'Gotri, Vadodara', price: 95000, rating: 4.7, distance: 4.0 },
+      { id: 9, type: 'Birthday', title: 'Kidz Fiesta Plaza', area: 'Vasna, Vadodara', price: 18000, rating: 4.3, distance: 9.1 },
+      { id: 10, type: 'Family', title: 'Oasis Get-together Space', area: 'Waghodia, Vadodara', price: 35000, rating: 4.6, distance: 12.5 },
+      { id: 11, type: 'Social', title: 'Alkapuri Social Club', area: 'Alkapuri, Vadodara', price: 75000, rating: 4.8, distance: 2.5 },
+      { id: 12, type: 'Cultural', title: 'Kala Kendra Grounds', area: 'Akota, Vadodara', price: 100000, rating: 4.5, distance: 3.2 },
+
+      { id: 13, type: 'Marriage', title: 'Silver Oak Wedding Resort', area: 'Sevasi, Vadodara', price: 320000, rating: 4.9, distance: 15.0 },
+      { id: 14, type: 'Corporate', title: 'Elite Executive Hall', area: 'Nizampura, Vadodara', price: 110000, rating: 4.6, distance: 4.2 },
+      { id: 15, type: 'Birthday', title: 'Neon Light Party Deck', area: 'Sama, Vadodara', price: 28000, rating: 4.4, distance: 6.8 },
+      { id: 16, type: 'Family', title: 'Banyan Tree Lawn', area: 'Manjalpur, Vadodara', price: 42000, rating: 4.7, distance: 7.9 },
+      { id: 17, type: 'Social', title: 'Community Mixer Space', area: 'Gotri, Vadodara', price: 55000, rating: 4.5, distance: 4.8 },
+      { id: 18, type: 'Cultural', title: 'Heritage Arts Pavilion', area: 'Fatehgunj, Vadodara', price: 140000, rating: 4.8, distance: 3.5 },
+
+      { id: 19, type: 'Marriage', title: 'The Lotus Palace', area: 'Vasna Bhayli, Vadodara', price: 380000, rating: 4.9, distance: 10.5 },
+      { id: 20, type: 'Corporate', title: 'Innovation Center Plot', area: 'Gorwa, Vadodara', price: 85000, rating: 4.4, distance: 5.2 },
+      { id: 21, type: 'Birthday', title: 'Starlight Celebration Lawn', area: 'Karelibaug, Vadodara', price: 22000, rating: 4.6, distance: 6.5 },
+      { id: 22, type: 'Family', title: 'Riverside Reunion Park', area: 'Sindhrot, Vadodara', price: 65000, rating: 4.8, distance: 18.0 },
+      { id: 23, type: 'Social', title: 'Urban Networking Yard', area: 'Akota, Vadodara', price: 70000, rating: 4.5, distance: 3.0 },
+      { id: 24, type: 'Cultural', title: 'Global Village Space', area: 'Waghodia, Vadodara', price: 115000, rating: 4.7, distance: 11.5 },
+
+      { id: 25, type: 'Marriage', title: 'Majestic Meadows', area: 'Bhayli, Vadodara', price: 290000, rating: 4.8, distance: 11.2 },
+      { id: 26, type: 'Corporate', title: 'Summit Corporate Grounds', area: 'Alkapuri, Vadodara', price: 125000, rating: 4.9, distance: 2.3 },
+      { id: 27, type: 'Birthday', title: 'Joyville Outdoor Setup', area: 'Nizampura, Vadodara', price: 30000, rating: 4.5, distance: 4.0 },
+      { id: 28, type: 'Family', title: 'The Gathering Grove', area: 'Sama, Vadodara', price: 40000, rating: 4.4, distance: 6.2 },
+      { id: 29, type: 'Social', title: 'Open Air Mixer Lounge', area: 'Manjalpur, Vadodara', price: 50000, rating: 4.3, distance: 7.5 },
+      { id: 30, type: 'Cultural', title: 'Festiva Cultural Hub', area: 'Gotri, Vadodara', price: 130000, rating: 4.8, distance: 5.0 },
+
+      { id: 31, type: 'Marriage', title: 'Golden Leaf Weddings', area: 'Sevasi, Vadodara', price: 410000, rating: 5.0, distance: 16.5 },
+      { id: 32, type: 'Corporate', title: 'BizConnect Lawn', area: 'Sayajigunj, Vadodara', price: 90000, rating: 4.6, distance: 1.8 },
+      { id: 33, type: 'Birthday', title: 'Candlelight Party Space', area: 'Fatehgunj, Vadodara', price: 26000, rating: 4.2, distance: 3.3 },
+      { id: 34, type: 'Family', title: 'Harmony Family Farm', area: 'Gorwa, Vadodara', price: 48000, rating: 4.7, distance: 5.8 },
+      { id: 35, type: 'Social', title: 'Twilight Social Plot', area: 'Waghodia, Vadodara', price: 68000, rating: 4.5, distance: 13.0 },
+      { id: 36, type: 'Cultural', title: 'Tradition Open Stage', area: 'Akota, Vadodara', price: 105000, rating: 4.6, distance: 2.8 },
+
+      { id: 37, type: 'Marriage', title: 'Emerald Estate', area: 'Vasna, Vadodara', price: 340000, rating: 4.9, distance: 8.5 },
+      { id: 38, type: 'Corporate', title: 'Nexus Event Spaces', area: 'Karelibaug, Vadodara', price: 100000, rating: 4.7, distance: 6.3 },
+      { id: 39, type: 'Birthday', title: 'Splash Poolside Party', area: 'Alkapuri, Vadodara', price: 45000, rating: 4.8, distance: 2.6 },
+      { id: 40, type: 'Family', title: 'Sunny View Orchard', area: 'Sindhrot, Vadodara', price: 55000, rating: 4.6, distance: 19.0 },
+      { id: 41, type: 'Social', title: 'Friends & Co. Yard', area: 'Nizampura, Vadodara', price: 62000, rating: 4.4, distance: 4.5 },
+      { id: 42, type: 'Cultural', title: 'Symphony Event Ground', area: 'Manjalpur, Vadodara', price: 125000, rating: 4.8, distance: 8.0 },
+
+      { id: 43, type: 'Marriage', title: 'Sapphire Grand Lawn', area: 'Gotri, Vadodara', price: 275000, rating: 4.7, distance: 4.1 },
+      { id: 44, type: 'Corporate', title: 'Pinnacle Biz Park', area: 'Bhayli, Vadodara', price: 140000, rating: 4.9, distance: 12.0 },
+      { id: 45, type: 'Birthday', title: 'Little Stars Lawn', area: 'Sama, Vadodara', price: 20000, rating: 4.3, distance: 5.6 },
+      { id: 46, type: 'Family', title: 'Casa Blanca Gardens', area: 'Fatehgunj, Vadodara', price: 52000, rating: 4.5, distance: 3.0 },
+      { id: 47, type: 'Social', title: 'The Connect Club', area: 'Sayajigunj, Vadodara', price: 80000, rating: 4.6, distance: 1.2 },
+      { id: 48, type: 'Cultural', title: 'Rhythm Outdoor Stage', area: 'Waghodia, Vadodara', price: 95000, rating: 4.4, distance: 10.5 },
+
+      { id: 49, type: 'Marriage', title: 'Platinum Palace Grounds', area: 'Akota, Vadodara', price: 480000, rating: 5.0, distance: 2.2 },
+      { id: 50, type: 'Corporate', title: 'Vanguard Meeting Space', area: 'Gorwa, Vadodara', price: 88000, rating: 4.5, distance: 4.9 },
+      { id: 51, type: 'Birthday', title: 'Carnival Open Plot', area: 'Manjalpur, Vadodara', price: 24000, rating: 4.2, distance: 7.7 },
+      { id: 52, type: 'Family', title: 'Serenity Banquet Lawn', area: 'Karelibaug, Vadodara', price: 47000, rating: 4.6, distance: 5.8 },
+      { id: 53, type: 'Social', title: 'Breeze Evening Space', area: 'Vasna, Vadodara', price: 58000, rating: 4.7, distance: 9.5 },
+      { id: 54, type: 'Cultural', title: 'Euphoria Art Setup', area: 'Gotri, Vadodara', price: 135000, rating: 4.9, distance: 4.4 }
+    ];
+
+    // 5. Filtering & Rendering Engine
+    const lawnGrid = document.getElementById('lawnGrid');
+    const filterSearch = document.getElementById('filterSearch');
+    const filterType = document.getElementById('filterType');
+    const filterPrice = document.getElementById('filterPrice');
+    const filterDistance = document.getElementById('filterDistance');
+    const filterRating = document.getElementById('filterRating');
+
+    function renderItems(items) {
+      lawnGrid.innerHTML = '';
+      
+      if (items.length === 0) {
+        lawnGrid.innerHTML = '<p style="color:var(--text-muted); grid-column:1/-1; text-align:center;">No venues found matching your criteria.</p>';
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'listing-card';
+        
+        // Grab the correct image safely from our map
+        const imgUrl = imgMap[item.type];
+
+        card.innerHTML = `
+          <img src="${imgUrl}" alt="${item.type}" class="card-image">
+          <div class="card-meta">
+            <span class="card-category">${item.type}</span>
+            <span class="card-distance">📍 ${item.distance} km</span>
+          </div>
+          <h3 class="card-title" title="${item.title}">${item.title}</h3>
+          <p class="card-area">${item.area}</p>
+          <div class="card-rating">
+            <span class="star">★</span> <strong style="color:var(--text-main)">${item.rating}</strong>
+          </div>
+          <div class="card-footer">
+            <div class="price">₹${item.price.toLocaleString('en-IN')} <span>/ day</span></div>
+            <!-- Links directly to payment4.html -->
+            <a href="payment4.html" class="btn-book">Book Now</a>
+          </div>
+        `;
+        lawnGrid.appendChild(card);
+      });
+    }
+
+    function applyFilters() {
+      const searchVal = filterSearch.value.toLowerCase();
+      const typeVal = filterType.value.toLowerCase();
+      const priceVal = filterPrice.value;
+      const distVal = parseFloat(filterDistance.value);
+      const ratingVal = parseFloat(filterRating.value);
+
+      const filtered = lawnData.filter(item => {
+        // Search & Type Match
+        const matchSearch = item.title.toLowerCase().includes(searchVal) || item.area.toLowerCase().includes(searchVal);
+        const matchType = typeVal === 'all' || item.type.toLowerCase().includes(typeVal);
+        
+        // Distance & Rating Match
+        const matchDist = item.distance <= distVal;
+        const matchRating = item.rating >= ratingVal;
+        
+        // Price Match
+        let matchPrice = true;
+        if (priceVal === 'budget') matchPrice = item.price <= 50000;
+        else if (priceVal === 'mid') matchPrice = item.price > 50000 && item.price <= 200000;
+        else if (priceVal === 'premium') matchPrice = item.price > 200000;
+
+        return matchSearch && matchType && matchDist && matchRating && matchPrice;
+      });
+
+      renderItems(filtered);
+    }
+
+    // Attach Event Listeners to inputs
+    filterSearch.addEventListener('input', applyFilters);
+    filterType.addEventListener('change', applyFilters);
+    filterPrice.addEventListener('change', applyFilters);
+    filterDistance.addEventListener('change', applyFilters);
+    filterRating.addEventListener('change', applyFilters);
+
+    // Initial Load
+    renderItems(lawnData);
+  </script>
+
+</body>
+</html>
